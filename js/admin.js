@@ -5,16 +5,16 @@ InstaVibe.Admin = {
     isAdmin() {
         const user = InstaVibe.Utils.getCurrentUser();
         if (!user) return false;
-        
+
         console.log("🔒 Vérification Admin. Votre UID actuel est :", user.id);
-        
+
         // Ajoutez ici les UID (depuis la console Firebase) de tous les comptes qui doivent être administrateurs
         const adminUIDs = [
             'demo_user',
-            'thfmhxcvdrbC1M8Nev9a5EDJ00P2' // Le compte de la capture d'écran
+            'thfmhxcvdrbClM8Nev9a5EDJ0OP2' // Le compte de la capture d'écran
             // Ajoutez d'autres UID ici entre apostrophes, séparés par des virgules
         ];
-        
+
         return adminUIDs.includes(user.id);
     },
 
@@ -80,11 +80,11 @@ InstaVibe.Admin = {
 
     _renderUserList(users) {
         if (users.length === 0) return '<div class="empty-state"><p>Aucun utilisateur trouvé</p></div>';
-        
+
         return users.map(user => {
             const isAdmin = user.id === 'demo_user';
             const isBanned = user.banned;
-            
+
             return `
             <div class="admin-user-card stagger-item">
                 <div class="admin-user-info">
@@ -144,7 +144,7 @@ InstaVibe.Admin = {
         // Delete their likes & comments on other posts
         InstaVibe.DemoStore.find('likes', l => l.userId === userId).forEach(l => InstaVibe.DemoStore.delete('likes', l.id));
         InstaVibe.DemoStore.find('comments', c => c.userId === userId).forEach(c => InstaVibe.DemoStore.delete('comments', c.id));
-        
+
         // Delete Follows
         InstaVibe.DemoStore.find('follows', f => f.followerId === userId || f.followingId === userId).forEach(f => InstaVibe.DemoStore.delete('follows', f.id));
 

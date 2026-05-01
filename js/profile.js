@@ -176,8 +176,7 @@ InstaVibe.Profile = {
 
     showSettings() {
         const theme = document.documentElement.dataset.theme;
-        const user = InstaVibe.Utils.getCurrentUser();
-        const isAdmin = InstaVibe.Admin ? InstaVibe.Admin.isAdmin() : (user && user.id === 'demo_user');
+        const isAdmin = InstaVibe.Admin && InstaVibe.Admin.isAdmin();
         
         let html = `<div class="modal-header"><button onclick="InstaVibe.Utils.closeModal()">${InstaVibe.Utils.icons.close}</button><h3>Paramètres</h3><div></div></div>
         ${isAdmin ? `<div class="settings-item" onclick="InstaVibe.Utils.closeModal();InstaVibe.App.navigate('admin')"><span class="settings-label" style="color:var(--accent-magenta);font-weight:700;">⚙️ Dashboard Admin</span></div>` : ''}
