@@ -23,7 +23,6 @@ InstaVibe.Feed = {
         document.getElementById('stories-bar-container').classList.remove('hidden');
 
         const content = document.getElementById('page-content');
-        const user = InstaVibe.Utils.getCurrentUser();
         const followingIds = InstaVibe.DemoStore.find('follows', f => f.followerId === user?.id).map(f => f.followingId);
         let posts = InstaVibe.DemoStore.get('posts')
             .filter(p => !p.userId.startsWith('user_') && p.userId !== 'demo_user')
