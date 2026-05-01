@@ -26,9 +26,9 @@ InstaVibe.Feed = {
         if (!InstaVibe.DEMO_MODE) {
             try {
                 const snap = await InstaVibe.db.collection('posts')
-                    .orderBy('createdAt', 'desc')
                     .limit(50)
                     .get();
+                console.log("📸 Posts chargés depuis Firestore:", snap.docs.length);
                 snap.docs.forEach(doc => {
                     const data = { id: doc.id, ...doc.data() };
                     if (!InstaVibe.DemoStore.findOne('posts', p => p.id === doc.id)) {
