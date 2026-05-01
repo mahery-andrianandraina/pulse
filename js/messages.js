@@ -34,7 +34,7 @@ InstaVibe.Messages = {
         }
     },
 
-    _renderConvList(convs, user) {
+    async _renderConvList(convs, user) {
         const container = document.getElementById('conv-list-container');
         if (!container) return;
 
@@ -43,33 +43,56 @@ InstaVibe.Messages = {
             return;
         }
 
-        container.innerHTML = convs.sort((a,b) => b.lastMessageAt - a.lastMessageAt).map(c => {
+        const htmls = await Promise.all(convs.sort((a,b) => b.lastMessageAt - a.lastMessageAt).map(async c => {
             const otherId = c.participants.find(p => p !== user.id);
-            // Si Firebase, il faudrait idéalement fetcher l'utilisateur distant, 
-            // pour l'instant on garde la logique synchrone du cache DemoStore ou on met un placeholder
-            const other = InstaVibe.DEMO_MODE ? InstaVibe.DemoStore.findOne('users', u => u.id === otherId) : { username: 'Utilisateur', avatarUrl: 'https://i.pravatar.cc/150' };
+            
+            let other = InstaVibe.DemoStore.findOne('users', u => u.id === otherId);
+            if (!other && !InstaVibe.DEMO_MODE) {
+                try {
+                    const doc = await InstaVibe.db.collection('users').doc(otherId).get();
+                    if (doc.exists) {
+                        other = { id: doc.id, ...doc.data() };
+                        InstaVibe.DemoStore.add('users', other);
+                    }
+                } catch(e) { console.error(e); }
+            }
+            if (!other) other = { username: 'Utilisateur', avatarUrl: `https://ui-avatars.com/api/?name=U&background=random` };
+
             const unread = c.unreadCount?.[user.id] || 0;
             return `<div class="conversation-item" onclick="InstaVibe.Messages.openChat('${c.id}', '${otherId}')">
-                <div class="avatar avatar-md"><img src="${other?.avatarUrl || 'https://i.pravatar.cc/150'}" alt=""></div>
+                <div class="avatar avatar-md"><img src="${other.avatarUrl}" alt=""></div>
                 <div class="conv-info">
-                    <div class="conv-name">${other?.username || 'Utilisateur'}</div>
+                    <div class="conv-name">${other.username}</div>
                     <div class="conv-last-msg">${InstaVibe.Utils.escapeHtml(c.lastMessage || '')} · ${c.lastMessageAt ? InstaVibe.Utils.timeAgo(c.lastMessageAt) : ''}</div>
                 </div>
                 ${unread > 0 ? '<div class="unread-dot"></div>' : ''}
             </div>`;
-        }).join('');
+        }));
+        
+        container.innerHTML = htmls.join('');
     },
 
-    openChat(convId, otherIdParam) {
+    async openChat(convId, otherIdParam) {
         const user = InstaVibe.Utils.getCurrentUser();
         
         // Setup Header
-        const other = InstaVibe.DEMO_MODE ? InstaVibe.DemoStore.findOne('users', u => u.id === otherIdParam) : { username: 'Utilisateur', avatarUrl: 'https://i.pravatar.cc/150' };
+        let other = InstaVibe.DemoStore.findOne('users', u => u.id === otherIdParam);
+        if (!other && !InstaVibe.DEMO_MODE) {
+            try {
+                const doc = await InstaVibe.db.collection('users').doc(otherIdParam).get();
+                if (doc.exists) {
+                    other = { id: doc.id, ...doc.data() };
+                    InstaVibe.DemoStore.add('users', other);
+                }
+            } catch(e) {}
+        }
+        if (!other) other = { username: 'Utilisateur', avatarUrl: `https://ui-avatars.com/api/?name=U&background=random` };
+
         document.getElementById('top-bar').innerHTML = `
             <button class="top-bar-back" onclick="InstaVibe.Messages.render()">${InstaVibe.Utils.icons.back}</button>
             <div class="flex items-center gap-sm" onclick="InstaVibe.App.navigate('user/${otherIdParam}')" style="cursor:pointer">
-                <div class="avatar avatar-sm"><img src="${other?.avatarUrl || 'https://i.pravatar.cc/150'}" alt=""></div>
-                <span style="font-weight:600">${other?.username || 'Chat'}</span>
+                <div class="avatar avatar-sm"><img src="${other.avatarUrl}" alt=""></div>
+                <span style="font-weight:600">${other.username}</span>
             </div>
             <div></div>`;
 
