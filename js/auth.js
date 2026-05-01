@@ -85,8 +85,14 @@ InstaVibe.Auth = {
             this._onAuthSuccess(); return;
         }
         try {
+            console.log("Tentative de connexion auth...");
             const cred = await InstaVibe.auth.signInWithEmailAndPassword(email, password);
+            console.log("Authentification réussie, UID:", cred.user.uid);
+            
+            console.log("Récupération du profil depuis Firestore...");
             const doc = await InstaVibe.db.collection('users').doc(cred.user.uid).get();
+            console.log("Profil récupéré:", doc.exists);
+            
             if (doc.exists) {
                 const userData = { id: doc.id, ...doc.data() };
                 if (!InstaVibe.DemoStore.findOne('users', u => u.id === doc.id)) {
@@ -96,10 +102,13 @@ InstaVibe.Auth = {
                 }
                 localStorage.setItem('instavibe_user', JSON.stringify(userData));
             }
+            
+            console.log("Lancement de l'application...");
             this._onAuthSuccess();
         } catch (err) {
+            console.error("Erreur critique lors de la connexion:", err);
             const el = document.getElementById('login-error');
-            el.textContent = 'Identifiants incorrects'; el.classList.remove('hidden');
+            el.textContent = err.message || 'Erreur inconnue'; el.classList.remove('hidden');
         }
     },
 
