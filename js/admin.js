@@ -4,8 +4,9 @@
 InstaVibe.Admin = {
     isAdmin() {
         const user = InstaVibe.Utils.getCurrentUser();
-        // In Demo mode, let's assume 'demo_user' is the admin
-        return user && user.id === 'demo_user';
+        if (!user) return false;
+        // Le compte mcformation1 est le compte administrateur en production
+        return user.id === 'demo_user' || user.username === 'mcformation1';
     },
 
     render() {
