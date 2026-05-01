@@ -123,6 +123,8 @@ InstaVibe.Post = {
         const user = InstaVibe.Utils.getCurrentUser();
         const isLiked = InstaVibe.DemoStore.findOne('likes', l => l.postId === post.id && l.userId === user?.id);
         const isSaved = InstaVibe.DemoStore.findOne('bookmarks', b => b.postId === post.id && b.userId === user?.id);
+        const isFollowing = InstaVibe.DemoStore.findOne('follows', f => f.followerId === user?.id && f.followingId === post.userId);
+        const isMe = post.userId === user?.id;
         const icons = InstaVibe.Utils.icons;
 
         return `<article class="post-card stagger-item" data-post-id="${post.id}">
@@ -132,7 +134,14 @@ InstaVibe.Post = {
                     <div class="username">${post.username}</div>
                     ${post.location ? `<div class="location">📍 ${post.location}</div>` : ''}
                 </div>
-                <button class="btn-icon" style="width:32px;height:32px;">${icons.more}</button>
+                ${!isMe ? `
+                    <button class="btn ${isFollowing ? 'btn-secondary' : 'btn-primary'} btn-sm" 
+                        onclick="event.stopPropagation(); InstaVibe.Post.toggleFollowFromFeed('${post.userId}', this)"
+                        style="margin-right: 8px; font-size: 11px; padding: 4px 10px;">
+                        ${isFollowing ? 'Suivi(e)' : 'Suivre'}
+                    </button>
+                ` : ''}
+                <button class="btn-icon" style="width:32px;height:32px; flex-shrink:0;">${icons.more}</button>
             </div>
             <div class="post-image-container" ondblclick="InstaVibe.Post.doubleTapLike('${post.id}', this)">
                 <img src="${post.imageUrl}" alt="" class="${post.filter || ''}" loading="lazy">
@@ -155,6 +164,20 @@ InstaVibe.Post = {
                 <div class="post-time">${InstaVibe.Utils.timeAgo(post.createdAt)}</div>
             </div>
         </article>`;
+    },
+
+    toggleFollowFromFeed(targetId, btn) {
+        InstaVibe.Profile.toggleFollow(targetId);
+        const currentUser = InstaVibe.Utils.getCurrentUser();
+        const isNowFollowing = InstaVibe.DemoStore.findOne('follows', f => f.followerId === currentUser?.id && f.followingId === targetId);
+        if (isNowFollowing) {
+            btn.className = 'btn btn-secondary btn-sm';
+            btn.textContent = 'Suivi(e)';
+        } else {
+            btn.className = 'btn btn-primary btn-sm';
+            btn.textContent = 'Suivre';
+        }
+        // Force refresh feed to re-order? Or just keep it as is.
     },
 
     toggleLike(postId) {
