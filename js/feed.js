@@ -2,7 +2,7 @@
    PULSE — Feed
    =========================================== */
 InstaVibe.Feed = {
-    render() {
+    async render() {
         document.getElementById('top-bar').innerHTML = `
             <span class="top-bar-brand">Pulse</span>
             <div class="top-bar-actions">
@@ -22,13 +22,40 @@ InstaVibe.Feed = {
         InstaVibe.Stories.renderStoriesBar();
         document.getElementById('stories-bar-container').classList.remove('hidden');
 
+        // Charger les posts depuis Firestore
+        if (!InstaVibe.DEMO_MODE) {
+            try {
+                const snap = await InstaVibe.db.collection('posts')
+                    .orderBy('createdAt', 'desc')
+                    .limit(50)
+                    .get();
+                snap.docs.forEach(doc => {
+                    const data = { id: doc.id, ...doc.data() };
+                    if (!InstaVibe.DemoStore.findOne('posts', p => p.id === doc.id)) {
+                        InstaVibe.DemoStore.add('posts', data);
+                    } else {
+                        InstaVibe.DemoStore.update('posts', doc.id, data);
+                    }
+                });
+            } catch (e) { console.error("Erreur chargement posts:", e); }
+        }
+
         const content = document.getElementById('page-content');
         const followingIds = InstaVibe.DemoStore.find('follows', f => f.followerId === user?.id).map(f => f.followingId);
-        let posts = InstaVibe.DemoStore.get('posts')
-            .filter(p => !p.userId.startsWith('user_') && p.userId !== 'demo_user')
+        
+        // Afficher TOUS les posts des vrais utilisateurs (suivis en premier, puis les autres)
+        const allRealPosts = InstaVibe.DemoStore.get('posts')
+            .filter(p => !p.userId.startsWith('user_') && p.userId !== 'demo_user');
+        
+        const followedPosts = allRealPosts
             .filter(p => followingIds.includes(p.userId) || p.userId === user?.id)
             .sort((a, b) => b.createdAt - a.createdAt);
-        if (posts.length === 0) posts = InstaVibe.DemoStore.get('posts').filter(p => !p.userId.startsWith('user_') && p.userId !== 'demo_user').sort((a, b) => b.createdAt - a.createdAt);
+        
+        const otherPosts = allRealPosts
+            .filter(p => !followingIds.includes(p.userId) && p.userId !== user?.id)
+            .sort((a, b) => b.createdAt - a.createdAt);
+        
+        let posts = [...followedPosts, ...otherPosts];
 
         if (posts.length === 0) {
             content.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⚡</div>

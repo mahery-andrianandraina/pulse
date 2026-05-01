@@ -81,12 +81,30 @@ InstaVibe.Profile = {
             if (target) InstaVibe.DemoStore.update('users', targetId, { followersCount: Math.max(0, target.followersCount - 1) });
             InstaVibe.DemoStore.update('users', cur.id, { followingCount: Math.max(0, cur.followingCount - 1) });
             if (btn) { btn.className = 'btn btn-primary btn-sm'; btn.textContent = 'Suivre'; }
+            // Supprimer le follow de Firestore
+            if (!InstaVibe.DEMO_MODE) {
+                InstaVibe.db.collection('follows').doc(existing.id).delete().catch(e => console.error(e));
+            }
         } else {
-            InstaVibe.DemoStore.add('follows', { id: InstaVibe.Utils.generateId('f_'), followerId: cur.id, followingId: targetId, createdAt: Date.now() });
-            if (target) InstaVibe.DemoStore.update('users', targetId, { followersCount: target.followersCount + 1 });
-            InstaVibe.DemoStore.update('users', cur.id, { followingCount: cur.followingCount + 1 });
+            const followId = InstaVibe.Utils.generateId('f_');
+            const followData = { id: followId, followerId: cur.id, followingId: targetId, createdAt: Date.now() };
+            InstaVibe.DemoStore.add('follows', followData);
+            if (target) InstaVibe.DemoStore.update('users', targetId, { followersCount: (target.followersCount || 0) + 1 });
+            InstaVibe.DemoStore.update('users', cur.id, { followingCount: (cur.followingCount || 0) + 1 });
             if (btn) { btn.className = 'btn btn-secondary btn-sm'; btn.textContent = 'Suivi(e)'; }
-            InstaVibe.DemoStore.add('notifications', { id: InstaVibe.Utils.generateId('n_'), userId: targetId, fromUserId: cur.id, fromUsername: cur.username, fromAvatar: cur.avatarUrl, type: 'follow', read: false, createdAt: Date.now() });
+            
+            // Créer la notification localement
+            const notifId = InstaVibe.Utils.generateId('n_');
+            const notifData = { id: notifId, userId: targetId, fromUserId: cur.id, fromUsername: cur.username, fromAvatar: cur.avatarUrl, type: 'follow', read: false, createdAt: Date.now() };
+            InstaVibe.DemoStore.add('notifications', notifData);
+            
+            // Envoyer le follow et la notification à Firestore
+            if (!InstaVibe.DEMO_MODE) {
+                InstaVibe.db.collection('follows').doc(followId).set(followData).catch(e => console.error(e));
+                InstaVibe.db.collection('notifications').doc(notifId).set(notifData).then(() => {
+                    console.log("✅ Notification de follow envoyée à", targetId);
+                }).catch(e => console.error(e));
+            }
         }
     },
 

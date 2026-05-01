@@ -98,9 +98,16 @@ InstaVibe.Post = {
                 likesCount: 0, commentsCount: 0, createdAt: Date.now()
             };
             
-            // 3. Save to database (DemoStore or Firestore later)
+            // 3. Save to database (DemoStore + Firestore)
             InstaVibe.DemoStore.add('posts', post);
             InstaVibe.DemoStore.update('users', user.id, { postsCount: (user.postsCount || 0) + 1 });
+            
+            // Sauvegarder dans Firestore pour les autres utilisateurs
+            if (!InstaVibe.DEMO_MODE) {
+                InstaVibe.db.collection('posts').doc(postId).set(post)
+                    .then(() => console.log("✅ Post publié sur Firestore"))
+                    .catch(e => console.error("Erreur Firestore post:", e));
+            }
             
             this.selectedImage = null; this.selectedFile = null; this.selectedFilter = 'filter-none';
             InstaVibe.Utils.showToast('Publié avec succès ⚡', 'success');

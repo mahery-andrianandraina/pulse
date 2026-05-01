@@ -2,13 +2,31 @@
    InstaVibe — Notifications
    =========================================== */
 InstaVibe.Notifications = {
-    render() {
+    async render() {
         document.getElementById('top-bar').innerHTML = `
             <button class="top-bar-back" onclick="InstaVibe.App.navigate('feed')">${InstaVibe.Utils.icons.back}</button>
             <span class="top-bar-title">Notifications</span><div></div>`;
         document.getElementById('stories-bar-container').classList.add('hidden');
 
         const user = InstaVibe.Utils.getCurrentUser();
+        
+        // Charger les notifications depuis Firestore
+        if (!InstaVibe.DEMO_MODE) {
+            try {
+                const snap = await InstaVibe.db.collection('notifications')
+                    .where('userId', '==', user?.id)
+                    .orderBy('createdAt', 'desc')
+                    .limit(50)
+                    .get();
+                snap.docs.forEach(doc => {
+                    const data = { id: doc.id, ...doc.data() };
+                    if (!InstaVibe.DemoStore.findOne('notifications', n => n.id === doc.id)) {
+                        InstaVibe.DemoStore.add('notifications', data);
+                    }
+                });
+            } catch (e) { console.error("Erreur chargement notifications:", e); }
+        }
+        
         const notifs = InstaVibe.DemoStore.find('notifications', n => n.userId === user?.id).sort((a, b) => b.createdAt - a.createdAt);
         const content = document.getElementById('page-content');
 
