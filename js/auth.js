@@ -90,8 +90,20 @@ InstaVibe.Auth = {
             console.log("Authentification réussie, UID:", cred.user.uid);
             
             console.log("Récupération du profil depuis Firestore...");
-            const doc = await InstaVibe.db.collection('users').doc(cred.user.uid).get();
-            console.log("Profil récupéré:", doc.exists);
+            let doc = await InstaVibe.db.collection('users').doc(cred.user.uid).get();
+            
+            // Si le document n'existe pas (ex: erreur de règles lors de l'inscription précédente)
+            if (!doc.exists) {
+                const defaultAvatar = `https://ui-avatars.com/api/?name=${cred.user.email.charAt(0)}&background=random&color=fff`;
+                const newDoc = {
+                    username: cred.user.displayName || cred.user.email.split('@')[0],
+                    displayName: cred.user.displayName || 'Utilisateur',
+                    bio: '', avatarUrl: defaultAvatar,
+                    followersCount: 0, followingCount: 0, postsCount: 0, createdAt: Date.now()
+                };
+                await InstaVibe.db.collection('users').doc(cred.user.uid).set(newDoc);
+                doc = { id: cred.user.uid, data: () => newDoc, exists: true };
+            }
             
             if (doc.exists) {
                 const userData = { id: doc.id, ...doc.data() };
@@ -101,7 +113,7 @@ InstaVibe.Auth = {
                     InstaVibe.DemoStore.update('users', doc.id, userData);
                 }
                 localStorage.setItem('instavibe_user', JSON.stringify(userData));
-                this.currentUser = userData; // FIXED: Assign currentUser!
+                this.currentUser = userData; // Assign currentUser
             }
             
             console.log("Lancement de l'application...");
@@ -127,8 +139,9 @@ InstaVibe.Auth = {
         try {
             const cred = await InstaVibe.auth.createUserWithEmailAndPassword(email, password);
             await cred.user.updateProfile({ displayName: name });
+            const defaultAvatar = `https://ui-avatars.com/api/?name=${name.charAt(0)}&background=random&color=fff`;
             const newUser = {
-                username, displayName: name, bio: '', avatarUrl: '',
+                username, displayName: name, bio: '', avatarUrl: defaultAvatar,
                 followersCount: 0, followingCount: 0, postsCount: 0, createdAt: Date.now()
             };
             await InstaVibe.db.collection('users').doc(cred.user.uid).set(newUser);
@@ -154,9 +167,29 @@ InstaVibe.Auth = {
         }
         try {
             const provider = new firebase.auth.GoogleAuthProvider();
-            await InstaVibe.auth.signInWithPopup(provider);
+            const cred = await InstaVibe.auth.signInWithPopup(provider);
+            
+            let doc = await InstaVibe.db.collection('users').doc(cred.user.uid).get();
+            if (!doc.exists) {
+                const newDoc = {
+                    username: cred.user.email.split('@')[0],
+                    displayName: cred.user.displayName || 'Utilisateur',
+                    bio: '', avatarUrl: cred.user.photoURL || `https://ui-avatars.com/api/?name=${cred.user.email.charAt(0)}&background=random&color=fff`,
+                    followersCount: 0, followingCount: 0, postsCount: 0, createdAt: Date.now()
+                };
+                await InstaVibe.db.collection('users').doc(cred.user.uid).set(newDoc);
+                doc = { id: cred.user.uid, data: () => newDoc, exists: true };
+            }
+            
+            const userData = { id: doc.id, ...doc.data() };
+            if (!InstaVibe.DemoStore.findOne('users', u => u.id === doc.id)) InstaVibe.DemoStore.add('users', userData);
+            else InstaVibe.DemoStore.update('users', doc.id, userData);
+            
+            localStorage.setItem('instavibe_user', JSON.stringify(userData));
+            this.currentUser = userData;
+            
             this._onAuthSuccess();
-        } catch (err) { InstaVibe.Utils.showToast('Erreur Google', 'error'); }
+        } catch (err) { InstaVibe.Utils.showToast('Erreur Google', 'error'); console.error(err); }
     },
 
     _onAuthSuccess() {
