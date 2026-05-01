@@ -19,7 +19,7 @@ if (!DEMO_MODE) {
     firebase.initializeApp(firebaseConfig);
     db = firebase.firestore();
     auth = firebase.auth();
-    storage = firebase.storage();
+    // storage = firebase.storage(); // DÉSACTIVÉ (Option 2 : Pas de carte bancaire)
 } else {
     console.log('🎮 DEMO mode (localStorage)');
 }
