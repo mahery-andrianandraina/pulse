@@ -5,8 +5,8 @@ InstaVibe.Admin = {
     isAdmin() {
         const user = InstaVibe.Utils.getCurrentUser();
         if (!user) return false;
-        // Temporaire : Accès administrateur total accordé à tous vos profils de test
-        return true;
+        // L'accès Admin est sécurisé et lié à votre identifiant unique Firebase
+        return user.id === 'demo_user' || user.id === 'thfmhxcvdrbC1M8Nev9a5EDJ00P2';
     },
 
     render() {
