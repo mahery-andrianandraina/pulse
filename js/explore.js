@@ -2,7 +2,7 @@
    InstaVibe — Explore & Search
    =========================================== */
 InstaVibe.Explore = {
-    render() {
+    async render() {
         document.getElementById('top-bar').innerHTML = `<div class="search-bar" style="flex:1;">
             <div class="search-input-wrapper">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -13,6 +13,21 @@ InstaVibe.Explore = {
 
         const content = document.getElementById('page-content');
         this._renderExploreGrid(content);
+
+        // Fetch all users from Firestore to allow searching
+        if (!InstaVibe.DEMO_MODE) {
+            try {
+                const snap = await InstaVibe.db.collection('users').get();
+                snap.docs.forEach(doc => {
+                    const data = { id: doc.id, ...doc.data() };
+                    if (InstaVibe.DemoStore.findOne('users', u => u.id === doc.id)) {
+                        InstaVibe.DemoStore.update('users', doc.id, data);
+                    } else {
+                        InstaVibe.DemoStore.add('users', data);
+                    }
+                });
+            } catch (e) { console.error("Erreur sync utilisateurs explore", e); }
+        }
 
         document.getElementById('search-input').addEventListener('input',
             InstaVibe.Utils.debounce((e) => this._handleSearch(e.target.value, content), 300)
