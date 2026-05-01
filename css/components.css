@@ -317,10 +317,24 @@ textarea.input-field { resize: vertical; min-height: 80px; }
     overflow-y: auto;
 }
 
-/* Notification badge — glowing dot */
+/* Notification badges (with numbers) */
 .notification-badge {
-    position: absolute; top: 2px; right: 2px; width: 8px; height: 8px;
-    background: var(--accent-magenta); border-radius: var(--radius-full);
+    position: absolute; top: -2px; right: -2px; 
+    background: var(--accent-magenta); color: #fff;
+    border-radius: var(--radius-pill);
+    font-size: 10px; font-weight: 800; font-family: var(--font-display);
+    padding: 2px 5px; min-width: 16px; height: 16px;
+    display: flex; align-items: center; justify-content: center;
     box-shadow: 0 0 8px rgba(255,0,110,0.6);
-    animation: pulse 2s infinite;
+}
+
+.nav-notif-badge {
+    position: absolute; top: -6px; right: -10px;
+    background: var(--accent-magenta); color: #fff;
+    border-radius: var(--radius-pill);
+    font-size: 10px; font-weight: 800; font-family: var(--font-display);
+    padding: 2px 5px; min-width: 16px; height: 16px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 8px rgba(255,0,110,0.6);
+    z-index: 10;
 }
