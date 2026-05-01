@@ -5,8 +5,17 @@ InstaVibe.Admin = {
     isAdmin() {
         const user = InstaVibe.Utils.getCurrentUser();
         if (!user) return false;
-        // L'accès Admin est sécurisé et lié à votre identifiant unique Firebase
-        return user.id === 'demo_user' || user.id === 'thfmhxcvdrbC1M8Nev9a5EDJ00P2';
+        
+        console.log("🔒 Vérification Admin. Votre UID actuel est :", user.id);
+        
+        // Ajoutez ici les UID (depuis la console Firebase) de tous les comptes qui doivent être administrateurs
+        const adminUIDs = [
+            'demo_user',
+            'thfmhxcvdrbC1M8Nev9a5EDJ00P2' // Le compte de la capture d'écran
+            // Ajoutez d'autres UID ici entre apostrophes, séparés par des virgules
+        ];
+        
+        return adminUIDs.includes(user.id);
     },
 
     render() {
