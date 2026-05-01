@@ -145,6 +145,27 @@ InstaVibe.Profile = {
                 InstaVibe.DemoStore.update('users', user.id, u);
                 Object.assign(InstaVibe.Auth.currentUser, u);
                 localStorage.setItem('instavibe_user', JSON.stringify(InstaVibe.Auth.currentUser));
+                
+                // Mettre à jour Firestore
+                if (!InstaVibe.DEMO_MODE) {
+                    try {
+                        await InstaVibe.db.collection('users').doc(user.id).update(u);
+                        
+                        // Mettre à jour les posts dans Firestore (optionnel mais bon pour le flux)
+                        const postsSnap = await InstaVibe.db.collection('posts').where('userId', '==', user.id).get();
+                        const batch = InstaVibe.db.batch();
+                        postsSnap.docs.forEach(doc => batch.update(doc.ref, { username: u.username, userAvatar: u.avatarUrl || user.avatarUrl }));
+                        await batch.commit();
+                    } catch (e) {
+                        console.error("Erreur màj Firestore:", e);
+                    }
+                }
+                
+                // Mettre à jour le DemoStore pour les posts existants
+                InstaVibe.DemoStore.get('posts').filter(p => p.userId === user.id).forEach(p => {
+                    InstaVibe.DemoStore.update('posts', p.id, { username: u.username, userAvatar: u.avatarUrl || user.avatarUrl });
+                });
+
                 InstaVibe.Utils.closeModal(); this.render();
                 InstaVibe.Utils.showToast('Profil mis à jour ⚡', 'success');
             });
