@@ -150,12 +150,14 @@ InstaVibe.Profile = {
                 if (!InstaVibe.DEMO_MODE) {
                     try {
                         await InstaVibe.db.collection('users').doc(user.id).update(u);
+                        console.log("Firestore users mis à jour avec succès !");
                         
                         // Mettre à jour les posts dans Firestore (optionnel mais bon pour le flux)
                         const postsSnap = await InstaVibe.db.collection('posts').where('userId', '==', user.id).get();
                         const batch = InstaVibe.db.batch();
-                        postsSnap.docs.forEach(doc => batch.update(doc.ref, { username: u.username, userAvatar: u.avatarUrl || user.avatarUrl }));
+                        postsSnap.docs.forEach(doc => batch.update(doc.ref, { username: u.username, userAvatar: u.avatarUrl || user.avatarUrl || "" }));
                         await batch.commit();
+                        console.log("Firestore posts mis à jour avec succès !");
                     } catch (e) {
                         console.error("Erreur màj Firestore:", e);
                     }
