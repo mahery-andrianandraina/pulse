@@ -10,8 +10,7 @@ InstaVibe.Admin = {
 
         // Ajoutez ici les UID (depuis la console Firebase) de tous les comptes qui doivent être administrateurs
         const adminUIDs = [
-            'demo_user',
-            'thfmhxcvdrbClM8Nev9a5EDJ0OP2' // Le compte de la capture d'écran
+            'thfmhxcvdrbClM8Nev9a5EDJ0OP2' // Votre compte admin
             // Ajoutez d'autres UID ici entre apostrophes, séparés par des virgules
         ];
 
@@ -31,7 +30,8 @@ InstaVibe.Admin = {
         document.getElementById('stories-bar-container').classList.add('hidden');
 
         const content = document.getElementById('page-content');
-        const users = InstaVibe.DemoStore.get('users');
+        // Filtrer les utilisateurs fictifs (seed data) pour ne montrer que les vrais comptes Firebase
+        const users = InstaVibe.DemoStore.get('users').filter(u => !u.id.startsWith('user_') && u.id !== 'demo_user');
         const posts = InstaVibe.DemoStore.get('posts');
         const interactions = InstaVibe.DemoStore.get('likes').length + InstaVibe.DemoStore.get('comments').length;
 
@@ -82,7 +82,7 @@ InstaVibe.Admin = {
         if (users.length === 0) return '<div class="empty-state"><p>Aucun utilisateur trouvé</p></div>';
 
         return users.map(user => {
-            const isAdmin = user.id === 'demo_user';
+            const isAdmin = InstaVibe.Admin._adminUIDs().includes(user.id);
             const isBanned = user.banned;
 
             return `
@@ -129,26 +129,37 @@ InstaVibe.Admin = {
     deleteUser(userId) {
         if (!confirm('Êtes-vous sûr de vouloir supprimer définitivement cet utilisateur et TOUTES ses données ?')) return;
 
-        // Delete User
-        InstaVibe.DemoStore.delete('users', userId);
+        // Supprimer de Firestore
+        if (!InstaVibe.DEMO_MODE) {
+            InstaVibe.db.collection('users').doc(userId).delete().catch(e => console.error('Erreur suppression Firestore user:', e));
+            InstaVibe.db.collection('posts').where('userId', '==', userId).get().then(snap => {
+                snap.docs.forEach(doc => doc.ref.delete());
+            }).catch(e => console.error('Erreur suppression Firestore posts:', e));
+            InstaVibe.db.collection('conversations').where('participants', 'array-contains', userId).get().then(snap => {
+                snap.docs.forEach(doc => doc.ref.delete());
+            }).catch(e => console.error('Erreur suppression Firestore convs:', e));
+        }
 
-        // Delete their posts
+        // Supprimer du DemoStore local
+        InstaVibe.DemoStore.delete('users', userId);
         const userPosts = InstaVibe.DemoStore.find('posts', p => p.userId === userId);
         userPosts.forEach(post => {
             InstaVibe.DemoStore.delete('posts', post.id);
-            // Delete likes and comments for these posts
             InstaVibe.DemoStore.find('likes', l => l.postId === post.id).forEach(l => InstaVibe.DemoStore.delete('likes', l.id));
             InstaVibe.DemoStore.find('comments', c => c.postId === post.id).forEach(c => InstaVibe.DemoStore.delete('comments', c.id));
         });
-
-        // Delete their likes & comments on other posts
         InstaVibe.DemoStore.find('likes', l => l.userId === userId).forEach(l => InstaVibe.DemoStore.delete('likes', l.id));
         InstaVibe.DemoStore.find('comments', c => c.userId === userId).forEach(c => InstaVibe.DemoStore.delete('comments', c.id));
-
-        // Delete Follows
         InstaVibe.DemoStore.find('follows', f => f.followerId === userId || f.followingId === userId).forEach(f => InstaVibe.DemoStore.delete('follows', f.id));
+        InstaVibe.DemoStore.find('stories', s => s.userId === userId).forEach(s => InstaVibe.DemoStore.delete('stories', s.id));
+        InstaVibe.DemoStore.find('notifications', n => n.fromUserId === userId).forEach(n => InstaVibe.DemoStore.delete('notifications', n.id));
 
-        InstaVibe.Utils.showToast('Utilisateur supprimé', 'success');
+        InstaVibe.Utils.showToast('Utilisateur supprimé définitivement', 'success');
         this.render();
+    },
+
+    // Liste des UID administrateurs (utilisée aussi par _renderUserList)
+    _adminUIDs() {
+        return ['thfmhxcvdrbClM8Nev9a5EDJ0OP2'];
     }
 };

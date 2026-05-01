@@ -35,7 +35,9 @@ InstaVibe.Explore = {
     },
 
     _renderExploreGrid(container) {
-        const posts = InstaVibe.DemoStore.get('posts').sort((a, b) => b.likesCount - a.likesCount);
+        const posts = InstaVibe.DemoStore.get('posts')
+            .filter(p => !p.userId.startsWith('user_') && p.userId !== 'demo_user')
+            .sort((a, b) => b.likesCount - a.likesCount);
         if (posts.length === 0) {
             container.innerHTML = '<div class="empty-state"><h3>Rien à explorer</h3></div>';
             return;
@@ -56,7 +58,7 @@ InstaVibe.Explore = {
         const q = query.toLowerCase();
         const users = InstaVibe.DemoStore.find('users', u =>
             u.username.toLowerCase().includes(q) || u.displayName.toLowerCase().includes(q)
-        ).filter(u => u.id !== 'demo_user');
+        ).filter(u => u.id !== 'demo_user' && !u.id.startsWith('user_'));
 
         if (users.length === 0) {
             container.innerHTML = '<div class="empty-state"><p>Aucun résultat pour "' + InstaVibe.Utils.escapeHtml(query) + '"</p></div>';

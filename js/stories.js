@@ -7,7 +7,8 @@ InstaVibe.Stories = {
     renderStoriesBar() {
         const container = document.getElementById('stories-bar-container');
         const currentUser = InstaVibe.Utils.getCurrentUser();
-        const stories = InstaVibe.DemoStore.find('stories', s => s.expiresAt > Date.now());
+        // Filtrer les stories des utilisateurs fictifs (seed data)
+        const stories = InstaVibe.DemoStore.find('stories', s => s.expiresAt > Date.now() && !s.userId.startsWith('user_') && s.userId !== 'demo_user');
         const userStories = {};
         stories.forEach(s => { if (!userStories[s.userId]) userStories[s.userId] = []; userStories[s.userId].push(s); });
 
