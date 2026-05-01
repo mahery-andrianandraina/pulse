@@ -101,6 +101,7 @@ InstaVibe.Auth = {
                     InstaVibe.DemoStore.update('users', doc.id, userData);
                 }
                 localStorage.setItem('instavibe_user', JSON.stringify(userData));
+                this.currentUser = userData; // FIXED: Assign currentUser!
             }
             
             console.log("Lancement de l'application...");
@@ -136,6 +137,7 @@ InstaVibe.Auth = {
             newUser.id = cred.user.uid;
             InstaVibe.DemoStore.add('users', newUser);
             localStorage.setItem('instavibe_user', JSON.stringify(newUser));
+            this.currentUser = newUser; // FIXED: Assign currentUser!
             
             this._onAuthSuccess();
         } catch (err) {
