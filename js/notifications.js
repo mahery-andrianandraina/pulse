@@ -15,9 +15,8 @@ InstaVibe.Notifications = {
             try {
                 const snap = await InstaVibe.db.collection('notifications')
                     .where('userId', '==', user?.id)
-                    .orderBy('createdAt', 'desc')
-                    .limit(50)
                     .get();
+                console.log("📬 Notifications trouvées dans Firestore:", snap.docs.length);
                 snap.docs.forEach(doc => {
                     const data = { id: doc.id, ...doc.data() };
                     if (!InstaVibe.DemoStore.findOne('notifications', n => n.id === doc.id)) {
