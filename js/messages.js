@@ -9,7 +9,7 @@ InstaVibe.Messages = {
         const user = InstaVibe.Utils.getCurrentUser();
         document.getElementById('top-bar').innerHTML = `
             <button class="top-bar-back" onclick="InstaVibe.App.navigate('feed')">${InstaVibe.Utils.icons.back}</button>
-            <span class="top-bar-title">${user?.username || 'Messages'}</span>
+            <span class="top-bar-title">Messages</span>
             <div class="top-bar-actions"><button class="btn-icon">✏️</button></div>`;
         document.getElementById('stories-bar-container').classList.add('hidden');
 
