@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="Pulse - Votre univers créatif. Partagez, connectez, vibrez.">
+    <meta name="theme-color" content="#0a0e27">
+    <title>Pulse — Creative Social</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="css/filters.css">
+    <link rel="stylesheet" href="css/pages.css">
+    <link rel="stylesheet" href="css/admin.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+</head>
+<body>
+    <!-- Animated background mesh -->
+    <div class="bg-mesh"></div>
+
+    <div id="app">
+        <!-- Auth Container -->
+        <div id="auth-container"></div>
+
+        <!-- Main App Shell -->
+        <div id="main-app" class="hidden">
+            <header id="top-bar"></header>
+            <div id="stories-bar-container"></div>
+            <main id="page-content"></main>
+
+            <!-- Floating Glass Navigation -->
+            <nav id="floating-nav">
+                <div class="nav-pill">
+                    <button class="fnav-item active" data-page="feed" id="nav-feed">
+                        <div class="fnav-icon">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                        </div>
+                        <span>Feed</span>
+                    </button>
+                    <button class="fnav-item" data-page="explore" id="nav-explore">
+                        <div class="fnav-icon">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>
+                        </div>
+                        <span>Discover</span>
+                    </button>
+                    <button class="fnav-item create-fab" data-page="create" id="nav-create">
+                        <div class="fab-inner">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        </div>
+                    </button>
+                    <button class="fnav-item" data-page="reels" id="nav-reels">
+                        <div class="fnav-icon">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                        </div>
+                        <span>Flux</span>
+                    </button>
+                    <button class="fnav-item" data-page="profile" id="nav-profile">
+                        <div class="fnav-icon fnav-avatar"><img src="" alt="" id="nav-avatar-img"></div>
+                        <span>Moi</span>
+                    </button>
+                </div>
+            </nav>
+        </div>
+
+        <!-- Modal Overlay -->
+        <div id="modal-overlay" class="hidden"></div>
+        <!-- Toast Container -->
+        <div id="toast-container"></div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
+
+    <script src="js/firebase-config.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/stories.js"></script>
+    <script src="js/post.js"></script>
+    <script src="js/feed.js"></script>
+    <script src="js/profile.js"></script>
+    <script src="js/explore.js"></script>
+    <script src="js/messages.js"></script>
+    <script src="js/notifications.js"></script>
+    <script src="js/reels.js"></script>
+    <script src="js/admin.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+/* PULSE — Animations */
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+@keyframes scaleIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+@keyframes pulseRipple {
+    0% { transform: translate(-50%,-50%) scale(0); opacity:1; }
+    50% { transform: translate(-50%,-50%) scale(1.2); opacity:0.7; }
+    100% { transform: translate(-50%,-50%) scale(1.5); opacity:0; }
+}
+@keyframes likeGlow {
+    0% { transform: scale(1); }
+    30% { transform: scale(1.4); filter: drop-shadow(0 0 12px rgba(255,0,110,0.6)); }
+    60% { transform: scale(0.9); }
+    100% { transform: scale(1); filter: none; }
+}
+@keyframes sparkProgress { from { width:0%; background:var(--accent-cyan); } to { width:100%; background:var(--accent-magenta); } }
+@keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.6; transform:scale(1.2); } }
+@keyframes float { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-8px); } }
+@keyframes cardReveal { from { opacity:0; transform:translateY(30px); } to { opacity:1; transform:translateY(0); } }
+@keyframes spin { from { transform:rotate(0deg); } to { transform:rotate(360deg); } }
+@keyframes dotPulse { 0%,80%,100% { transform:scale(0); } 40% { transform:scale(1); } }
+
+.animate-fadeIn { animation: fadeIn 0.3s ease; }
+.animate-slideUp { animation: slideUp 0.35s cubic-bezier(.4,0,.2,1); }
+.animate-scaleIn { animation: scaleIn 0.3s ease; }
+.animate-pulseRipple { animation: pulseRipple 0.8s ease forwards; }
+.animate-likeGlow { animation: likeGlow 0.5s ease; }
+.animate-float { animation: float 3s ease-in-out infinite; }
+.page-enter { animation: fadeIn 0.25s ease; }
+
+.spinner { width:28px; height:28px; border:2.5px solid var(--border-glass); border-top-color:var(--accent-cyan); border-radius:50%; animation:spin 0.7s linear infinite; }
+.typing-dots { display:flex; gap:5px; align-items:center; }
+.typing-dots span { width:7px; height:7px; background:var(--accent-cyan); border-radius:50%; animation:dotPulse 1.4s infinite both; }
+.typing-dots span:nth-child(1) { animation-delay:-0.32s; }
+.typing-dots span:nth-child(2) { animation-delay:-0.16s; }
+
+.stagger-item { opacity:0; animation:cardReveal 0.4s ease forwards; }
+.stagger-item:nth-child(1){animation-delay:.05s} .stagger-item:nth-child(2){animation-delay:.1s}
+.stagger-item:nth-child(3){animation-delay:.15s} .stagger-item:nth-child(4){animation-delay:.2s}
+.stagger-item:nth-child(5){animation-delay:.25s} .stagger-item:nth-child(6){animation-delay:.3s}

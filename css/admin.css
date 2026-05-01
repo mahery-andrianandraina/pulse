@@ -1,0 +1,166 @@
+/* ===========================================
+   PULSE — Admin Dashboard
+   =========================================== */
+
+.admin-page {
+    padding: var(--space-xl) var(--space-lg);
+    min-height: calc(100vh - var(--top-bar-height));
+    background: var(--bg-void);
+}
+
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-2xl);
+    padding-bottom: var(--space-md);
+    border-bottom: 1px solid var(--border-glass);
+}
+
+.admin-title {
+    font-family: var(--font-display);
+    font-size: var(--font-2xl);
+    font-weight: 800;
+    color: var(--accent-magenta);
+}
+
+/* Stats Grid */
+.admin-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-md);
+    margin-bottom: var(--space-2xl);
+}
+
+.admin-stat-card {
+    background: var(--gradient-card);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    text-align: center;
+    box-shadow: var(--shadow-card);
+}
+
+.admin-stat-card .stat-value {
+    font-size: var(--font-3xl);
+    font-weight: 800;
+    font-family: var(--font-display);
+    color: var(--accent-cyan);
+    margin-bottom: var(--space-xs);
+}
+
+.admin-stat-card .stat-label {
+    font-size: var(--font-sm);
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* User List */
+.admin-section-title {
+    font-family: var(--font-display);
+    font-size: var(--font-xl);
+    font-weight: 700;
+    margin-bottom: var(--space-lg);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.admin-user-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.admin-user-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-lg);
+    background: var(--bg-glass);
+    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-lg);
+    transition: all 0.3s;
+}
+
+.admin-user-card:hover {
+    background: var(--bg-glass-hover);
+    border-color: var(--accent-cyan);
+}
+
+.admin-user-info {
+    display: flex;
+    align-items: center;
+    gap: var(--space-lg);
+}
+
+.admin-user-details .admin-username {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: var(--font-md);
+    color: var(--text-primary);
+}
+
+.admin-user-details .admin-email {
+    font-size: var(--font-sm);
+    color: var(--text-secondary);
+}
+
+.admin-user-metrics {
+    display: flex;
+    gap: var(--space-md);
+    margin-top: 4px;
+    font-size: var(--font-xs);
+    color: var(--text-tertiary);
+}
+
+.admin-user-actions {
+    display: flex;
+    gap: var(--space-sm);
+}
+
+/* Danger Buttons */
+.btn-danger {
+    background: rgba(255, 0, 110, 0.1);
+    color: var(--accent-magenta);
+    border: 1px solid rgba(255, 0, 110, 0.3);
+}
+
+.btn-danger:hover {
+    background: var(--accent-magenta);
+    color: white;
+    box-shadow: 0 0 15px rgba(255, 0, 110, 0.4);
+}
+
+.btn-warning {
+    background: rgba(255, 214, 10, 0.1);
+    color: var(--accent-gold);
+    border: 1px solid rgba(255, 214, 10, 0.3);
+}
+
+.btn-warning:hover {
+    background: var(--accent-gold);
+    color: #000;
+    box-shadow: 0 0 15px rgba(255, 214, 10, 0.4);
+}
+
+/* Badges */
+.admin-badge {
+    padding: 2px 8px;
+    border-radius: var(--radius-pill);
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.badge-admin {
+    background: var(--gradient-pulse);
+    color: white;
+}
+
+.badge-banned {
+    background: var(--accent-coral);
+    color: white;
+}
