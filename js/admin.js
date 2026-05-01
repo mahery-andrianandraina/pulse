@@ -5,8 +5,9 @@ InstaVibe.Admin = {
     isAdmin() {
         const user = InstaVibe.Utils.getCurrentUser();
         if (!user) return false;
-        // Le compte mcformation1 est le compte administrateur en production
-        return user.id === 'demo_user' || user.username === 'mcformation1';
+        // L'accès Admin est lié à votre identifiant unique Firebase (qui ne change jamais)
+        // UID tiré de votre capture d'écran console
+        return user.id === 'demo_user' || user.id === 'thfmhxcvdrbC1M8Nev9a5EDJ00P2';
     },
 
     render() {
