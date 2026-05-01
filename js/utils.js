@@ -105,13 +105,16 @@ InstaVibe.Utils = {
         return div.innerHTML;
     },
 
-    // Get current demo user
+    // Get current user (sync)
     getCurrentUser() {
         if (InstaVibe.DEMO_MODE) {
             return InstaVibe.DemoStore.findOne('users', u => u.id === 'demo_user');
         }
-        const u = InstaVibe.auth.currentUser;
-        return u ? { id: u.uid, username: u.displayName || u.email.split('@')[0], displayName: u.displayName || '', avatarUrl: u.photoURL || '', bio: '' } : null;
+        // Use the synchronously cached user from Auth (populated by checkSession or login)
+        if (InstaVibe.Auth && InstaVibe.Auth.currentUser) {
+            return InstaVibe.Auth.currentUser;
+        }
+        return null;
     },
 
     // SVG Icons
