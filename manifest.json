@@ -8,7 +8,7 @@
   "theme_color": "#0a0e27",
   "icons": [
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/React-icon.svg/512px-React-icon.svg.png",
+      "src": "icons/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png"
     }
