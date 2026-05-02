@@ -191,10 +191,36 @@ InstaVibe.Post = {
             InstaVibe.DemoStore.delete('likes', existing.id);
             post.likesCount = Math.max(0, post.likesCount - 1);
             if (btn) { btn.classList.remove('liked'); btn.innerHTML = InstaVibe.Utils.icons.heart; }
+            
+            if (!InstaVibe.DEMO_MODE) {
+                InstaVibe.db.collection('likes').doc(existing.id).delete().catch(e => console.error(e));
+                InstaVibe.db.collection('posts').doc(postId).update({ likesCount: post.likesCount }).catch(e => console.error(e));
+            }
         } else {
-            InstaVibe.DemoStore.add('likes', { id: InstaVibe.Utils.generateId('l_'), postId, userId: user.id, createdAt: Date.now() });
+            const likeId = InstaVibe.Utils.generateId('l_');
+            const likeData = { id: likeId, postId, userId: user.id, createdAt: Date.now() };
+            InstaVibe.DemoStore.add('likes', likeData);
             post.likesCount++;
             if (btn) { btn.classList.add('liked', 'animate-likeGlow'); btn.innerHTML = InstaVibe.Utils.icons.heartFilled; setTimeout(() => btn.classList.remove('animate-likeGlow'), 500); }
+            
+            if (post && post.userId !== user.id) {
+                const notifId = InstaVibe.Utils.generateId('n_');
+                const notifData = {
+                    id: notifId, userId: post.userId, fromUserId: user.id,
+                    fromUsername: user.username, fromAvatar: user.avatarUrl,
+                    type: 'like', postId: postId, postImage: post.imageUrl,
+                    read: false, createdAt: Date.now()
+                };
+                InstaVibe.DemoStore.add('notifications', notifData);
+                if (!InstaVibe.DEMO_MODE) {
+                    InstaVibe.db.collection('notifications').doc(notifId).set(notifData).catch(e => console.error(e));
+                }
+            }
+            
+            if (!InstaVibe.DEMO_MODE) {
+                InstaVibe.db.collection('likes').doc(likeId).set(likeData).catch(e => console.error(e));
+                InstaVibe.db.collection('posts').doc(postId).update({ likesCount: post.likesCount }).catch(e => console.error(e));
+            }
         }
         InstaVibe.DemoStore.update('posts', postId, { likesCount: post.likesCount });
         if (countEl) countEl.textContent = `${InstaVibe.Utils.formatNumber(post.likesCount)} vibes`;
@@ -253,12 +279,39 @@ InstaVibe.Post = {
         const input = document.getElementById('comment-input');
         const text = input?.value.trim(); if (!text) return;
         const user = InstaVibe.Utils.getCurrentUser();
-        InstaVibe.DemoStore.add('comments', {
-            id: InstaVibe.Utils.generateId('com_'), postId, userId: user.id,
+        const commentId = InstaVibe.Utils.generateId('com_');
+        const commentData = {
+            id: commentId, postId, userId: user.id,
             username: user.username, userAvatar: user.avatarUrl, text, createdAt: Date.now()
-        });
+        };
+        
+        InstaVibe.DemoStore.add('comments', commentData);
         const post = InstaVibe.DemoStore.findOne('posts', p => p.id === postId);
-        InstaVibe.DemoStore.update('posts', postId, { commentsCount: (post.commentsCount || 0) + 1 });
+        const newCount = (post.commentsCount || 0) + 1;
+        InstaVibe.DemoStore.update('posts', postId, { commentsCount: newCount });
+
+        // Ajouter la notification si le post n'appartient pas à l'utilisateur courant
+        if (post && post.userId !== user.id) {
+            const notifId = InstaVibe.Utils.generateId('n_');
+            const notifData = {
+                id: notifId, userId: post.userId, fromUserId: user.id,
+                fromUsername: user.username, fromAvatar: user.avatarUrl,
+                type: 'comment', postId: postId, postImage: post.imageUrl,
+                read: false, createdAt: Date.now()
+            };
+            InstaVibe.DemoStore.add('notifications', notifData);
+            
+            if (!InstaVibe.DEMO_MODE) {
+                InstaVibe.db.collection('notifications').doc(notifId).set(notifData).catch(e => console.error(e));
+            }
+        }
+
+        // Sauvegarder dans Firestore
+        if (!InstaVibe.DEMO_MODE) {
+            InstaVibe.db.collection('comments').doc(commentId).set(commentData).catch(e => console.error(e));
+            InstaVibe.db.collection('posts').doc(postId).update({ commentsCount: newCount }).catch(e => console.error(e));
+        }
+
         InstaVibe.Utils.closeModal();
         this.showComments(postId);
     }
