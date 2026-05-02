@@ -248,8 +248,21 @@ InstaVibe.Post = {
         }
     },
 
-    showComments(postId) {
+    async showComments(postId) {
         const post = InstaVibe.DemoStore.findOne('posts', p => p.id === postId);
+        
+        if (!InstaVibe.DEMO_MODE) {
+            try {
+                const snap = await InstaVibe.db.collection('comments').where('postId', '==', postId).get();
+                snap.docs.forEach(doc => {
+                    const data = { id: doc.id, ...doc.data() };
+                    if (!InstaVibe.DemoStore.findOne('comments', c => c.id === doc.id)) {
+                        InstaVibe.DemoStore.add('comments', data);
+                    }
+                });
+            } catch (e) { console.error("Erreur chargement comments:", e); }
+        }
+
         const comments = InstaVibe.DemoStore.find('comments', c => c.postId === postId).sort((a, b) => a.createdAt - b.createdAt);
         const user = InstaVibe.Utils.getCurrentUser();
         let html = `<div class="modal-header">
