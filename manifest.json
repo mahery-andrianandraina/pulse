@@ -1,0 +1,16 @@
+{
+  "name": "Pulse Social",
+  "short_name": "Pulse",
+  "description": "Votre univers créatif. Partagez, connectez, vibrez.",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#0a0e27",
+  "theme_color": "#0a0e27",
+  "icons": [
+    {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/React-icon.svg/512px-React-icon.svg.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
