@@ -6,10 +6,11 @@
   "start_url": "/pulse/",
   "scope": "/pulse/",
   "display": "standalone",
+  "display_override": ["window-controls-overlay", "minimal-ui"],
   "background_color": "#0a0e27",
   "theme_color": "#0a0e27",
   "orientation": "portrait",
-  "categories": ["social", "lifestyle"],
+  "categories": ["social", "lifestyle", "entertainment"],
   "prefer_related_applications": false,
   "icons": [
     {
@@ -41,7 +42,7 @@
     },
     {
       "src": "icons/screenshot_narrow.png",
-      "sizes": "375x667",
+      "sizes": "500x693",
       "type": "image/png",
       "form_factor": "narrow",
       "label": "Pulse Feed Mobile"
