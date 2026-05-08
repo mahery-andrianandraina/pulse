@@ -2,7 +2,7 @@
    InstaVibe — Reels
    =========================================== */
 InstaVibe.Reels = {
-    render() {
+    async render() {
         document.getElementById('top-bar').innerHTML = `
             <span class="top-bar-title" style="position:static;">Reels</span>
             <div class="top-bar-actions"><button class="btn-icon">${InstaVibe.Utils.icons.camera}</button></div>`;

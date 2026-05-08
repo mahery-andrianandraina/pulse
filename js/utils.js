@@ -160,5 +160,16 @@ InstaVibe.Utils = {
     // Navigate
     navigate(hash) {
         window.location.hash = hash;
-    }
-};
+    },
+164: 
+165:     // Loading
+166:     showLoading() {
+167:         document.getElementById('global-loader')?.classList.remove('hidden');
+168:     },
+169: 
+170:     hideLoading() {
+171:         setTimeout(() => {
+172:             document.getElementById('global-loader')?.classList.add('hidden');
+173:         }, 300); // Petit délai pour éviter le flash
+174:     }
+175: };

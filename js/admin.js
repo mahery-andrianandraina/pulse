@@ -17,7 +17,7 @@ InstaVibe.Admin = {
         return adminUIDs.includes(user.id);
     },
 
-    render() {
+    async render() {
         if (!this.isAdmin()) {
             InstaVibe.App.navigate('feed');
             InstaVibe.Utils.showToast('Accès refusé', 'error');

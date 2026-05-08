@@ -2,7 +2,7 @@
    PULSE — Profile
    =========================================== */
 InstaVibe.Profile = {
-    render(userId) {
+    async render(userId) {
         const isOwn = !userId || userId === InstaVibe.Utils.getCurrentUser()?.id;
         const targetId = isOwn ? InstaVibe.Utils.getCurrentUser()?.id : userId;
         const user = InstaVibe.DemoStore.findOne('users', u => u.id === targetId);

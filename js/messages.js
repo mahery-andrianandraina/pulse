@@ -5,7 +5,7 @@ InstaVibe.Messages = {
     _unsubConvs: null,
     _unsubChat: null,
 
-    render() {
+    async render() {
         const user = InstaVibe.Utils.getCurrentUser();
         document.getElementById('top-bar').innerHTML = `
             <button class="top-bar-back" onclick="InstaVibe.App.navigate('feed')">${InstaVibe.Utils.icons.back}</button>
@@ -18,19 +18,28 @@ InstaVibe.Messages = {
 
         if (InstaVibe.DEMO_MODE) {
             const convs = InstaVibe.DemoStore.find('conversations', c => c.participants.includes(user?.id));
-            this._renderConvList(convs, user);
+            await this._renderConvList(convs, user);
         } else {
-            // FIREBASE REALTIME LISTENER
-            if (this._unsubConvs) this._unsubConvs();
-            this._unsubConvs = InstaVibe.db.collection('conversations')
-                .where('participants', 'array-contains', user.id)
-                .onSnapshot(snapshot => {
-                    const convs = snapshot.docs.map(d => ({id: d.id, ...d.data()}));
-                    this._renderConvList(convs, user);
-                }, err => {
-                    console.error("Erreur Firestore conversations:", err);
-                    document.getElementById('conv-list-container').innerHTML = `<p>Erreur de connexion serveur.</p>`;
-                });
+            try {
+                // Get initial data for the loader to wait
+                const snapshot = await InstaVibe.db.collection('conversations')
+                    .where('participants', 'array-contains', user.id)
+                    .get();
+                const convs = snapshot.docs.map(d => ({id: d.id, ...d.data()}));
+                await this._renderConvList(convs, user);
+
+                // Then setup realtime listener
+                if (this._unsubConvs) this._unsubConvs();
+                this._unsubConvs = InstaVibe.db.collection('conversations')
+                    .where('participants', 'array-contains', user.id)
+                    .onSnapshot(snapshot => {
+                        const convs = snapshot.docs.map(d => ({id: d.id, ...d.data()}));
+                        this._renderConvList(convs, user);
+                    });
+            } catch (err) {
+                console.error("Erreur Firestore conversations:", err);
+                document.getElementById('conv-list-container').innerHTML = `<p>Erreur de connexion serveur.</p>`;
+            }
         }
     },
 

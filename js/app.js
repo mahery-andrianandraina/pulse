@@ -30,7 +30,9 @@ InstaVibe.App = {
 
     navigate(page) { window.location.hash = page; },
 
-    _handleRoute() {
+    async _handleRoute() {
+        InstaVibe.Utils.showLoading();
+        
         const hash = (window.location.hash || '#feed').replace('#', '');
         const parts = hash.split('/');
         const page = parts[0] || 'feed';
@@ -39,23 +41,29 @@ InstaVibe.App = {
         this._updateNav(page);
         InstaVibe.Utils.closeModal();
 
-        switch (page) {
-            case 'feed': InstaVibe.Feed.render(); break;
-            case 'explore': InstaVibe.Explore.render(); break;
-            case 'create':
-                InstaVibe.Post.renderCreatePage();
-                document.getElementById('stories-bar-container').classList.add('hidden');
-                break;
-            case 'reels': InstaVibe.Reels.render(); break;
-            case 'profile': InstaVibe.Profile.render(); break;
-            case 'user': InstaVibe.Profile.render(param); break;
-            case 'messages': InstaVibe.Messages.render(); break;
-            case 'chat': if (param) InstaVibe.Messages.startChat(param); break;
-            case 'notifications': InstaVibe.Notifications.render(); break;
-            case 'admin': InstaVibe.Admin.render(); break;
-            default: InstaVibe.Feed.render();
+        try {
+            switch (page) {
+                case 'feed': await InstaVibe.Feed.render(); break;
+                case 'explore': await InstaVibe.Explore.render(); break;
+                case 'create':
+                    InstaVibe.Post.renderCreatePage();
+                    document.getElementById('stories-bar-container').classList.add('hidden');
+                    break;
+                case 'reels': await InstaVibe.Reels.render(); break;
+                case 'profile': await InstaVibe.Profile.render(); break;
+                case 'user': await InstaVibe.Profile.render(param); break;
+                case 'messages': await InstaVibe.Messages.render(); break;
+                case 'chat': if (param) await InstaVibe.Messages.startChat(param); break;
+                case 'notifications': await InstaVibe.Notifications.render(); break;
+                case 'admin': await InstaVibe.Admin.render(); break;
+                default: await InstaVibe.Feed.render();
+            }
+        } catch (e) {
+            console.error("Navigation error:", e);
         }
+
         document.getElementById('page-content').scrollTop = 0;
+        InstaVibe.Utils.hideLoading();
     },
 
     _updateNav(page) {
