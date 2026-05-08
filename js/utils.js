@@ -162,14 +162,52 @@ InstaVibe.Utils = {
         window.location.hash = hash;
     },
 164: 
-165:     // Loading
-166:     showLoading() {
-167:         document.getElementById('global-loader')?.classList.remove('hidden');
-168:     },
-169: 
-170:     hideLoading() {
-171:         setTimeout(() => {
-172:             document.getElementById('global-loader')?.classList.add('hidden');
-173:         }, 300); // Petit délai pour éviter le flash
-174:     }
-175: };
+
+    // Loading
+    showLoading() {
+        document.getElementById('global-loader')?.classList.remove('hidden');
+    },
+
+    hideLoading() {
+        setTimeout(() => {
+            document.getElementById('global-loader')?.classList.add('hidden');
+        }, 300); // Petit délai pour éviter le flash
+    },
+
+    // Page Loading (Top progress bar)
+    showPageLoading() {
+        let bar = document.getElementById('nav-progress-bar');
+        if (!bar) {
+            bar = document.createElement('div');
+            bar.id = 'nav-progress-bar';
+            document.body.appendChild(bar);
+        }
+        bar.classList.remove('complete');
+        bar.classList.add('active');
+        bar.style.opacity = '1';
+    },
+
+    hidePageLoading() {
+        const bar = document.getElementById('nav-progress-bar');
+        if (!bar) return;
+        bar.classList.add('complete');
+        setTimeout(() => {
+            bar.style.opacity = '0';
+            setTimeout(() => {
+                bar.classList.remove('active', 'complete');
+                bar.style.width = '0';
+            }, 300);
+        }, 200);
+    },
+
+    // Inline loading spinner
+    renderLoading(container) {
+        if (!container) return;
+        container.innerHTML = `
+            <div class="empty-state animate-fadeIn" style="min-height:200px;">
+                <div class="pulse-loader-logo" style="font-size:32px;">⚡</div>
+                <div class="loader-bar" style="width:100px;"><div class="loader-bar-inner"></div></div>
+                <p style="font-size:12px;opacity:0.6;margin-top:8px;">Chargement des données...</p>
+            </div>`;
+    }
+};

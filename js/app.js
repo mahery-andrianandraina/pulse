@@ -31,15 +31,19 @@ InstaVibe.App = {
     navigate(page) { window.location.hash = page; },
 
     async _handleRoute() {
-        InstaVibe.Utils.showLoading();
+        InstaVibe.Utils.showPageLoading();
         
         const hash = (window.location.hash || '#feed').replace('#', '');
         const parts = hash.split('/');
         const page = parts[0] || 'feed';
         const param = parts[1] || null;
         this.currentPage = page;
-        this._updateNav(page);
+        
+        // UI Reset
         InstaVibe.Utils.closeModal();
+        document.getElementById('stories-bar-container')?.classList.add('hidden');
+        
+        this._updateNav(page);
 
         try {
             switch (page) {
@@ -63,12 +67,14 @@ InstaVibe.App = {
         }
 
         document.getElementById('page-content').scrollTop = 0;
-        InstaVibe.Utils.hideLoading();
+        InstaVibe.Utils.hidePageLoading();
     },
 
     _updateNav(page) {
         document.querySelectorAll('#floating-nav .fnav-item').forEach(btn => {
-            btn.classList.toggle('active', btn.dataset.page === page);
+            const isPage = btn.dataset.page === page;
+            const isUser = page === 'user' && btn.dataset.page === 'profile';
+            btn.classList.toggle('active', isPage || isUser);
         });
         const hideNav = ['create', 'chat', 'messages', 'notifications', 'admin'].includes(page);
         const floatingNav = document.getElementById('floating-nav');

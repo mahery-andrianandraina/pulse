@@ -3,15 +3,18 @@
    =========================================== */
 InstaVibe.Explore = {
     async render() {
+        const content = document.getElementById('page-content');
+        InstaVibe.Utils.renderLoading(content);
+
         document.getElementById('top-bar').innerHTML = `<div class="search-bar" style="flex:1;">
             <div class="search-input-wrapper">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                 <input type="text" class="search-input" placeholder="Rechercher des personnes..." id="search-input">
             </div>
         </div>`;
-        document.getElementById('stories-bar-container').classList.add('hidden');
-
-        const content = document.getElementById('page-content');
+        
+        // Petit délai pour simuler le chargement
+        await new Promise(r => setTimeout(r, 500));
 
         // Fetch all users from Firestore
         if (!InstaVibe.DEMO_MODE) {

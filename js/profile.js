@@ -3,10 +3,17 @@
    =========================================== */
 InstaVibe.Profile = {
     async render(userId) {
+        const content = document.getElementById('page-content');
+        InstaVibe.Utils.renderLoading(content);
+
         const isOwn = !userId || userId === InstaVibe.Utils.getCurrentUser()?.id;
         const targetId = isOwn ? InstaVibe.Utils.getCurrentUser()?.id : userId;
         const user = InstaVibe.DemoStore.findOne('users', u => u.id === targetId);
-        if (!user) { document.getElementById('page-content').innerHTML = '<div class="empty-state"><h3>Introuvable</h3></div>'; return; }
+        
+        // Simuler le délai de chargement
+        await new Promise(r => setTimeout(r, 600));
+
+        if (!user) { content.innerHTML = '<div class="empty-state"><h3>Introuvable</h3></div>'; return; }
 
         const cur = InstaVibe.Utils.getCurrentUser();
         const isFollowing = InstaVibe.DemoStore.findOne('follows', f => f.followerId === cur?.id && f.followingId === targetId);
@@ -18,7 +25,6 @@ InstaVibe.Profile = {
             <div class="top-bar-actions">
                 ${isOwn ? `<button class="btn-icon" onclick="InstaVibe.Profile.showSettings()">${InstaVibe.Utils.icons.settings}</button>` : ''}
             </div>`;
-        document.getElementById('stories-bar-container').classList.add('hidden');
 
         document.getElementById('page-content').innerHTML = `<div class="profile-page page-enter">
             <div class="profile-header">

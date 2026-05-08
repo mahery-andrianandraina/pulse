@@ -3,13 +3,17 @@
    =========================================== */
 InstaVibe.Reels = {
     async render() {
+        const content = document.getElementById('page-content');
+        InstaVibe.Utils.renderLoading(content);
+
         document.getElementById('top-bar').innerHTML = `
             <span class="top-bar-title" style="position:static;">Reels</span>
             <div class="top-bar-actions"><button class="btn-icon">${InstaVibe.Utils.icons.camera}</button></div>`;
-        document.getElementById('stories-bar-container').classList.add('hidden');
+
+        // Petit délai pour simuler le chargement
+        await new Promise(r => setTimeout(r, 400));
 
         const posts = InstaVibe.DemoStore.get('posts').sort(() => Math.random() - 0.5);
-        const content = document.getElementById('page-content');
 
         content.innerHTML = `<div class="reels-page page-enter">
             <div class="reel-container" id="reel-container">

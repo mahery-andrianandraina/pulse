@@ -3,6 +3,9 @@
    =========================================== */
 InstaVibe.Feed = {
     async render() {
+        const content = document.getElementById('page-content');
+        InstaVibe.Utils.renderLoading(content);
+
         document.getElementById('top-bar').innerHTML = `
             <span class="top-bar-brand">Pulse</span>
             <div class="top-bar-actions">
@@ -18,6 +21,9 @@ InstaVibe.Feed = {
         const user = InstaVibe.Utils.getCurrentUser();
         const unread = InstaVibe.DemoStore.find('notifications', n => n.userId === user?.id && !n.read);
         if (unread.length > 0) document.getElementById('notif-badge')?.classList.remove('hidden');
+
+        // Petit délai pour simuler le chargement et montrer l'animation
+        await new Promise(r => setTimeout(r, 400));
 
         InstaVibe.Stories.renderStoriesBar();
         document.getElementById('stories-bar-container').classList.remove('hidden');

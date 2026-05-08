@@ -134,12 +134,27 @@ textarea.input-field { resize: vertical; min-height: 80px; }
     padding: 6px 14px; color: var(--text-tertiary); transition: all 0.3s;
     border-radius: var(--radius-lg); position: relative;
 }
-.fnav-item span { font-size: 10px; font-weight: 500; font-family: var(--font-display); }
+.fnav-item span { 
+    font-size: 10px; 
+    font-weight: 600; 
+    font-family: var(--font-display); 
+    max-height: 0;
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(.4,0,.2,1);
+    transform: translateY(4px);
+    pointer-events: none;
+}
+.fnav-item.active span { 
+    max-height: 14px;
+    opacity: 1;
+    transform: translateY(0);
+    margin-top: 2px;
+}
 .fnav-item.active { color: var(--accent-cyan); }
 .fnav-item.active::after {
-    content: ''; position: absolute; top: -4px; width: 16px; height: 3px;
-    background: var(--accent-cyan); border-radius: 2px;
-    box-shadow: 0 0 8px rgba(0,212,255,0.5);
+    content: ''; position: absolute; top: -10px; width: 20px; height: 3px;
+    background: var(--accent-cyan); border-radius: var(--radius-pill);
+    box-shadow: 0 0 12px var(--accent-cyan);
 }
 .fnav-icon { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; }
 .fnav-avatar { border-radius: var(--radius-full); overflow: hidden; width: 26px; height: 26px; border: 2px solid transparent; }
@@ -338,6 +353,19 @@ textarea.input-field { resize: vertical; min-height: 80px; }
     box-shadow: 0 0 8px rgba(255,0,110,0.6);
     z-index: 10;
 }
+/* --- Top Progress Bar --- */
+#nav-progress-bar {
+    position: fixed; top: 0; left: 0; height: 3px; z-index: 10000;
+    background: var(--gradient-pulse); width: 0;
+    transition: opacity 0.3s; pointer-events: none;
+}
+#nav-progress-bar.active {
+    animation: loaderProgress 2s ease-out forwards;
+}
+#nav-progress-bar.complete {
+    width: 100% !important;
+}
+
 /* --- Global Loader --- */
 #global-loader {
     position: fixed; inset: 0; z-index: 9999;
