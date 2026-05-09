@@ -204,8 +204,8 @@ InstaVibe.Utils = {
         if (!container) return;
         container.innerHTML = `
             <div class="empty-state animate-fadeIn" style="min-height:200px;">
-                <div class="pulse-loader-logo" style="width:80px;height:auto;margin-bottom:10px;">
-                    <img src="icons/logo.png" alt="Pulse" style="width:100%;height:auto;">
+                <div class="pulse-loader-logo" style="width:60px;height:auto;margin-bottom:10px;">
+                    <img src="icons/logo.svg" alt="Pulse" style="width:100%;height:auto;">
                 </div>
                 <div class="loader-bar" style="width:100px;"><div class="loader-bar-inner"></div></div>
                 <p style="font-size:12px;opacity:0.6;margin-top:8px;">Chargement des données...</p>
