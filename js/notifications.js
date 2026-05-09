@@ -3,10 +3,16 @@
    =========================================== */
 InstaVibe.Notifications = {
     async render() {
+        const content = document.getElementById('page-content');
+        InstaVibe.Utils.renderLoading(content);
+
         document.getElementById('top-bar').innerHTML = `
             <button class="top-bar-back" onclick="InstaVibe.App.navigate('feed')">${InstaVibe.Utils.icons.back}</button>
             <span class="top-bar-title">Notifications</span><div></div>`;
         document.getElementById('stories-bar-container').classList.add('hidden');
+
+        // Petit délai pour simuler le chargement et montrer l'animation
+        await new Promise(r => setTimeout(r, 400));
 
         const user = InstaVibe.Utils.getCurrentUser();
         

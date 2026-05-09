@@ -7,14 +7,18 @@ InstaVibe.Messages = {
 
     async render() {
         const user = InstaVibe.Utils.getCurrentUser();
+        const content = document.getElementById('page-content');
+        InstaVibe.Utils.renderLoading(content);
+
         document.getElementById('top-bar').innerHTML = `
             <button class="top-bar-back" onclick="InstaVibe.App.navigate('feed')">${InstaVibe.Utils.icons.back}</button>
             <span class="top-bar-title">Messages</span>
             <div class="top-bar-actions"><button class="btn-icon">✏️</button></div>`;
         document.getElementById('stories-bar-container').classList.add('hidden');
 
-        const content = document.getElementById('page-content');
-        content.innerHTML = '<div class="messages-page page-enter" id="conv-list-container"><div style="padding:20px;text-align:center">Chargement...</div></div>';
+        // Petit délai pour montrer l'animation
+        await new Promise(r => setTimeout(r, 400));
+        content.innerHTML = '<div class="messages-page page-enter" id="conv-list-container"></div>';
 
         if (InstaVibe.DEMO_MODE) {
             const convs = InstaVibe.DemoStore.find('conversations', c => c.participants.includes(user?.id));
