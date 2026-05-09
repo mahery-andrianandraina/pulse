@@ -20,9 +20,10 @@ InstaVibe.Notifications = {
                 snap.docs.forEach(doc => {
                     const data = { id: doc.id, ...doc.data() };
                     if (!InstaVibe.DemoStore.findOne('notifications', n => n.id === doc.id)) {
-                        InstaVibe.DemoStore.add('notifications', data);
+                        InstaVibe.DemoStore.add('notifications', data, true);
                     }
                 });
+                InstaVibe.DemoStore.save();
             } catch (e) { console.error("Erreur chargement notifications:", e); }
         }
         

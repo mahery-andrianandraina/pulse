@@ -32,10 +32,34 @@ const DemoStore = {
         this._data = saved ? JSON.parse(saved) : this._seedData();
         this.save();
     },
-    save() { localStorage.setItem('instavibe_data', JSON.stringify(this._data)); },
+    save() { 
+        try {
+            localStorage.setItem('instavibe_data', JSON.stringify(this._data)); 
+        } catch (e) {
+            if (e.name === 'QuotaExceededError' || e.code === 22) {
+                console.warn("⚠️ LocalStorage quota atteint. Les données sont conservées en mémoire pour cette session.");
+            } else {
+                console.error("Erreur sauvegarde localStorage:", e);
+            }
+        }
+    },
     get(c) { return this._data[c] || []; },
-    add(c, item) { if (!this._data[c]) this._data[c] = []; this._data[c].push(item); this.save(); return item; },
-    update(c, id, u) { const arr = this._data[c] || []; const i = arr.findIndex(x => x.id === id); if (i !== -1) { arr[i] = { ...arr[i], ...u }; this.save(); return arr[i]; } return null; },
+    add(c, item, silent = false) { 
+        if (!this._data[c]) this._data[c] = []; 
+        this._data[c].push(item); 
+        if (!silent) this.save(); 
+        return item; 
+    },
+    update(c, id, u, silent = false) { 
+        const arr = this._data[c] || []; 
+        const i = arr.findIndex(x => x.id === id); 
+        if (i !== -1) { 
+            arr[i] = { ...arr[i], ...u }; 
+            if (!silent) this.save(); 
+            return arr[i]; 
+        } 
+        return null; 
+    },
     delete(c, id) { if (this._data[c]) { this._data[c] = this._data[c].filter(x => x.id !== id); this.save(); } },
     find(c, fn) { return (this._data[c] || []).filter(fn); },
     findOne(c, fn) { return (this._data[c] || []).find(fn); },

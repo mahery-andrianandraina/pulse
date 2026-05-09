@@ -23,19 +23,23 @@ InstaVibe.Explore = {
                 snap.docs.forEach(doc => {
                     const data = { id: doc.id, ...doc.data() };
                     if (InstaVibe.DemoStore.findOne('users', u => u.id === doc.id)) {
-                        InstaVibe.DemoStore.update('users', doc.id, data);
+                        InstaVibe.DemoStore.update('users', doc.id, data, true);
                     } else {
-                        InstaVibe.DemoStore.add('users', data);
+                        InstaVibe.DemoStore.add('users', data, true);
                     }
                 });
+                InstaVibe.DemoStore.save();
             } catch (e) { console.error("Erreur sync utilisateurs explore", e); }
         }
 
         this._renderDiscover(content);
 
-        document.getElementById('search-input').addEventListener('input',
-            InstaVibe.Utils.debounce((e) => this._handleSearch(e.target.value, content), 300)
-        );
+        const searchInput = document.getElementById('search-input');
+        if (searchInput) {
+            searchInput.addEventListener('input',
+                InstaVibe.Utils.debounce((e) => this._handleSearch(e.target.value, content), 300)
+            );
+        }
     },
 
     _renderDiscover(container) {

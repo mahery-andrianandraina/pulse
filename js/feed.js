@@ -38,11 +38,12 @@ InstaVibe.Feed = {
                 snap.docs.forEach(doc => {
                     const data = { id: doc.id, ...doc.data() };
                     if (!InstaVibe.DemoStore.findOne('posts', p => p.id === doc.id)) {
-                        InstaVibe.DemoStore.add('posts', data);
+                        InstaVibe.DemoStore.add('posts', data, true);
                     } else {
-                        InstaVibe.DemoStore.update('posts', doc.id, data);
+                        InstaVibe.DemoStore.update('posts', doc.id, data, true);
                     }
                 });
+                InstaVibe.DemoStore.save();
             } catch (e) { console.error("Erreur chargement posts:", e); }
         }
 
