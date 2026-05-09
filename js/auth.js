@@ -29,6 +29,7 @@ InstaVibe.Auth = {
                 </div>
             </div>`;
         this._bindLoginEvents();
+        InstaVibe.Utils.hideLoading();
     },
 
     renderSignupPage() {
@@ -57,6 +58,7 @@ InstaVibe.Auth = {
                 </div>
             </div>`;
         this._bindSignupEvents();
+        InstaVibe.Utils.hideLoading();
     },
 
     _bindLoginEvents() {

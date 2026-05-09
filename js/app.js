@@ -68,6 +68,7 @@ InstaVibe.App = {
 
         document.getElementById('page-content').scrollTop = 0;
         InstaVibe.Utils.hidePageLoading();
+        InstaVibe.Utils.hideLoading();
     },
 
     _updateNav(page) {
