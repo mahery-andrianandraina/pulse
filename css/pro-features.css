@@ -255,3 +255,179 @@
 .story-reply-input::placeholder {
     color: rgba(255, 255, 255, 0.5);
 }
+
+/* --- Advanced Chat Features --- */
+
+/* Chat action buttons (emoji, photo, voice) */
+.chat-action-btn {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    cursor: pointer;
+    border-radius: var(--radius-full);
+    background: none;
+    border: none;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+.chat-action-btn:hover {
+    background: var(--bg-glass);
+    transform: scale(1.1);
+}
+
+/* Emoji picker panel */
+.chat-emoji-panel {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 10px 12px;
+    background: var(--bg-deep);
+    border-top: 1px solid var(--border-glass);
+    max-height: 120px;
+    overflow-y: auto;
+    animation: slideUp 0.2s ease;
+}
+.chat-emoji-panel.hidden { display: none; }
+.emoji-pick {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    transition: all 0.15s;
+}
+.emoji-pick:hover {
+    background: var(--bg-glass);
+    transform: scale(1.25);
+}
+
+/* Photo in chat */
+.chat-photo {
+    max-width: 220px;
+    max-height: 280px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    display: block;
+    margin-bottom: 4px;
+}
+
+/* Voice message */
+.voice-msg {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 140px;
+}
+.voice-play-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--accent-cyan);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    cursor: pointer;
+    border: none;
+    flex-shrink: 0;
+    transition: all 0.2s;
+}
+.voice-play-btn:hover { transform: scale(1.1); }
+.voice-wave {
+    flex: 1;
+    height: 20px;
+    background: repeating-linear-gradient(
+        90deg,
+        var(--accent-cyan) 0px, var(--accent-cyan) 2px,
+        transparent 2px, transparent 5px
+    );
+    border-radius: 4px;
+    opacity: 0.5;
+    animation: voiceWaveAnim 2s ease-in-out infinite alternate;
+}
+@keyframes voiceWaveAnim {
+    0% { opacity: 0.3; }
+    100% { opacity: 0.7; }
+}
+.voice-dur {
+    font-size: var(--font-xs);
+    opacity: 0.7;
+    flex-shrink: 0;
+}
+
+/* Message reaction */
+.msg-reaction {
+    position: absolute;
+    bottom: -8px;
+    right: 8px;
+    font-size: 16px;
+    background: var(--bg-deep);
+    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-full);
+    padding: 1px 5px;
+    line-height: 1;
+    z-index: 1;
+}
+.chat-bubble { position: relative; }
+
+/* Reaction picker */
+.reaction-picker {
+    position: absolute;
+    top: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 4px;
+    background: var(--bg-deep);
+    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-pill);
+    padding: 6px 10px;
+    box-shadow: var(--shadow-float);
+    z-index: 10;
+    animation: scaleIn 0.15s ease;
+}
+.reaction-picker span {
+    font-size: 20px;
+    cursor: pointer;
+    transition: transform 0.15s;
+    padding: 2px;
+}
+.reaction-picker span:hover {
+    transform: scale(1.4);
+}
+
+/* Reply quote */
+.msg-reply-quote {
+    font-size: var(--font-xs);
+    padding: 6px 10px;
+    margin-bottom: 6px;
+    background: rgba(255, 255, 255, 0.08);
+    border-left: 3px solid var(--accent-cyan);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    color: var(--text-secondary);
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Reply preview bar */
+.chat-reply-preview {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: var(--bg-glass);
+    border-top: 1px solid var(--border-glass);
+    font-size: var(--font-sm);
+    color: var(--text-secondary);
+}
+.chat-reply-preview.hidden { display: none; }
+
