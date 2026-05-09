@@ -21,7 +21,7 @@ InstaVibe.Profile = {
 
         document.getElementById('top-bar').innerHTML = `
             ${!isOwn ? `<button class="top-bar-back" onclick="history.back()">${InstaVibe.Utils.icons.back}</button>` : '<div></div>'}
-            <span class="top-bar-title">${user.username}</span>
+            <span class="top-bar-title">${user.username}${InstaVibe.Utils.renderVerifiedBadge(targetId)}</span>
             <div class="top-bar-actions">
                 ${isOwn ? `<button class="btn-icon" onclick="InstaVibe.Profile.showSettings()">${InstaVibe.Utils.icons.settings}</button>` : ''}
             </div>`;
@@ -36,7 +36,7 @@ InstaVibe.Profile = {
                 </div>
             </div>
             <div class="profile-bio">
-                <div class="display-name">${InstaVibe.Utils.escapeHtml(user.displayName)}</div>
+                <div class="display-name">${InstaVibe.Utils.escapeHtml(user.displayName)}${InstaVibe.Utils.renderVerifiedBadge(targetId, true)}</div>
                 <div class="bio-text">${InstaVibe.Utils.escapeHtml(user.bio||'').replace(/\n/g,'<br>')}</div>
             </div>
             <div class="profile-actions">

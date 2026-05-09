@@ -72,10 +72,14 @@ InstaVibe.Messages = {
             if (!other) other = { username: 'Utilisateur', avatarUrl: `https://ui-avatars.com/api/?name=U&background=random` };
 
             const unread = c.unreadCount?.[user.id] || 0;
+            const isOnline = Math.random() > 0.5; // Simulate online status
             return `<div class="conversation-item" onclick="InstaVibe.Messages.openChat('${c.id}', '${otherId}')">
-                <div class="avatar avatar-md"><img src="${other.avatarUrl}" alt=""></div>
+                <div class="avatar-online-wrapper">
+                    <div class="avatar avatar-md"><img src="${other.avatarUrl}" alt=""></div>
+                    ${isOnline ? '<div class="online-dot"></div>' : ''}
+                </div>
                 <div class="conv-info">
-                    <div class="conv-name">${other.username}</div>
+                    <div class="conv-name">${other.username}${InstaVibe.Utils.renderVerifiedBadge(otherId)}</div>
                     <div class="conv-last-msg">${InstaVibe.Utils.escapeHtml(c.lastMessage || '')} · ${c.lastMessageAt ? InstaVibe.Utils.timeAgo(c.lastMessageAt) : ''}</div>
                 </div>
                 ${unread > 0 ? '<div class="unread-dot"></div>' : ''}
@@ -167,23 +171,50 @@ InstaVibe.Messages = {
     _renderMessages(messages, userId) {
         const chatBox = document.getElementById('chat-messages');
         if (!chatBox) return;
-        chatBox.innerHTML = messages.map(m => `<div class="chat-bubble ${m.senderId === userId ? 'sent' : 'received'}">
-            ${InstaVibe.Utils.escapeHtml(m.text)}
-            <div class="bubble-time">${InstaVibe.Utils.timeAgo(m.createdAt)}</div>
-        </div>`).join('');
+        const lastMsg = messages[messages.length - 1];
+        chatBox.innerHTML = messages.map(m => {
+            const isSent = m.senderId === userId;
+            const readCheck = isSent ? `<span class="read-receipt read-receipt--read"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="1.5 8.5 5 12 14.5 3"/><polyline points="5.5 8.5 9 12" opacity="0.5"/></svg></span>` : '';
+            return `<div class="chat-bubble ${isSent ? 'sent' : 'received'}">
+                ${InstaVibe.Utils.escapeHtml(m.text)}
+                <div class="bubble-time">${InstaVibe.Utils.timeAgo(m.createdAt)}${readCheck}</div>
+            </div>`;
+        }).join('');
+        // Show typing indicator
+        if (this._showTyping) {
+            chatBox.innerHTML += `<div class="typing-indicator"><div class="typing-dots"><span></span><span></span><span></span></div><span class="typing-label">écrit...</span></div>`;
+        }
         chatBox.scrollTop = chatBox.scrollHeight;
     },
 
     _setupSendBtn(convId, userId, otherId, sendCallback) {
         const input = document.getElementById('chat-msg-input');
         const sendBtn = document.getElementById('chat-send-btn');
+        let typingTimer = null;
         const send = () => {
             const text = input.value.trim(); if (!text) return;
             input.value = '';
+            this._showTyping = false;
             sendCallback(text);
         };
         sendBtn.onclick = send;
         input.onkeypress = (e) => { if (e.key === 'Enter') send(); };
+        // Simulate other user typing after we send
+        input.oninput = () => {
+            clearTimeout(typingTimer);
+            if (input.value.trim()) {
+                typingTimer = setTimeout(() => {
+                    this._showTyping = true;
+                    const messages = InstaVibe.DemoStore.find('messages', m => m.conversationId === convId).sort((a, b) => a.createdAt - b.createdAt);
+                    this._renderMessages(messages, userId);
+                    setTimeout(() => {
+                        this._showTyping = false;
+                        const msgs = InstaVibe.DemoStore.find('messages', m => m.conversationId === convId).sort((a, b) => a.createdAt - b.createdAt);
+                        this._renderMessages(msgs, userId);
+                    }, 2000);
+                }, 800);
+            }
+        };
     },
 
     startChat(targetUserId) {

@@ -64,7 +64,7 @@ InstaVibe.Explore = {
                 <div class="discover-avatar" onclick="InstaVibe.App.navigate('user/${u.id}')">
                     <img src="${u.avatarUrl || 'https://ui-avatars.com/api/?name=' + (u.username || 'U') + '&background=random&color=fff'}" alt="">
                 </div>
-                <div class="discover-name" onclick="InstaVibe.App.navigate('user/${u.id}')">${u.displayName || u.username}</div>
+                <div class="discover-name" onclick="InstaVibe.App.navigate('user/${u.id}')">${u.displayName || u.username}${InstaVibe.Utils.renderVerifiedBadge(u.id)}</div>
                 <div class="discover-username">@${u.username}</div>
                 ${u.bio ? `<div class="discover-bio">${InstaVibe.Utils.escapeHtml(u.bio).substring(0, 60)}</div>` : ''}
                 <div class="discover-stats">

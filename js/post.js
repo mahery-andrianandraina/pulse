@@ -131,7 +131,7 @@ InstaVibe.Post = {
             <div class="post-header">
                 <div class="avatar-spark${Math.random()>0.5?' viewed':''}"><div class="avatar" onclick="InstaVibe.App.navigate('user/${post.userId}')" style="cursor:pointer"><img src="${post.userAvatar}" alt=""></div></div>
                 <div class="post-header-info" onclick="InstaVibe.App.navigate('user/${post.userId}')" style="cursor:pointer">
-                    <div class="username">${post.username}</div>
+                    <div class="username">${post.username}${InstaVibe.Utils.renderVerifiedBadge(post.userId)}</div>
                     ${post.location ? `<div class="location">📍 ${post.location}</div>` : ''}
                 </div>
                 ${!isMe ? `
@@ -152,14 +152,14 @@ InstaVibe.Post = {
             <div class="post-actions">
                 <button class="post-action-btn ${isLiked?'liked':''}" onclick="InstaVibe.Post.toggleLike('${post.id}')" data-like-btn="${post.id}">${isLiked ? icons.heartFilled : icons.heart}</button>
                 <button class="post-action-btn" onclick="InstaVibe.Post.showComments('${post.id}')">${icons.comment}</button>
-                <button class="post-action-btn">${icons.share}</button>
+                <button class="post-action-btn" onclick="InstaVibe.Utils.sharePost('${post.id}')">${icons.share}</button>
                 <div class="right-actions">
                     <button class="post-action-btn ${isSaved?'saved':''}" onclick="InstaVibe.Post.toggleBookmark('${post.id}')" data-save-btn="${post.id}">${isSaved ? icons.bookmarkFilled : icons.bookmark}</button>
                 </div>
             </div>
             <div class="post-info">
                 <div class="post-likes" data-likes-count="${post.id}">${InstaVibe.Utils.formatNumber(post.likesCount)} vibes</div>
-                <div class="post-caption"><span class="username">${post.username}</span> ${InstaVibe.Utils.escapeHtml(post.caption)}</div>
+                <div class="post-caption"><span class="username">${post.username}${InstaVibe.Utils.renderVerifiedBadge(post.userId)}</span> ${InstaVibe.Utils.escapeHtml(post.caption)}</div>
                 ${post.commentsCount > 0 ? `<div class="post-comments-link" onclick="InstaVibe.Post.showComments('${post.id}')">Voir les ${post.commentsCount} réactions</div>` : ''}
                 <div class="post-time">${InstaVibe.Utils.timeAgo(post.createdAt)}</div>
             </div>
@@ -271,7 +271,7 @@ InstaVibe.Post = {
         <div style="max-height:60vh;overflow-y:auto;padding-bottom:60px;">
             <div class="comment-item" style="border-bottom:1px solid var(--border-glass);">
                 <div class="avatar avatar-sm"><img src="${post.userAvatar}" alt=""></div>
-                <div class="comment-content"><span class="comment-username">${post.username}</span>
+                <div class="comment-content"><span class="comment-username">${post.username}${InstaVibe.Utils.renderVerifiedBadge(post.userId)}</span>
                 <span class="comment-text">${InstaVibe.Utils.escapeHtml(post.caption)}</span>
                 <div class="comment-meta"><span>${InstaVibe.Utils.timeAgo(post.createdAt)}</span></div></div></div>
             ${comments.map(c => `<div class="comment-item">

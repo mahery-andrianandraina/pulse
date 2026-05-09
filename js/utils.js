@@ -135,6 +135,7 @@ InstaVibe.Utils = {
         plus: '<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>',
         image: '<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>',
         search: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>',
+        verified: '<svg viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20.396 11c.1-.14.19-.3.27-.47.08-.17.14-.35.18-.54.04-.19.06-.38.05-.58-.01-.2-.04-.39-.1-.57-.06-.19-.14-.36-.25-.52-.1-.16-.23-.3-.37-.42l-.02-.02c-.14-.13-.3-.24-.47-.33-.17-.09-.35-.15-.54-.19-.19-.04-.39-.05-.58-.03-.2.01-.39.06-.57.12-.18.07-.36.16-.51.27-.16.11-.3.24-.42.38l-.02.02c-.13.14-.23.31-.32.48a2.45 2.45 0 00-.17.54c-.03.19-.04.39-.02.58.01.2.05.39.11.57.06.18.15.35.26.51.11.16.24.3.38.42l.02.02c.14.13.3.23.48.32.17.08.36.14.54.17.19.03.38.04.58.02.2-.01.39-.05.57-.11.18-.06.35-.15.51-.26.16-.11.3-.24.42-.38z" fill="#00d4ff"/><path d="M9.585 14.8l-3.39-3.39a.75.75 0 111.06-1.06l2.33 2.33 5.15-5.15a.75.75 0 111.06 1.06l-5.68 5.68a.75.75 0 01-1.06 0l-.47.53z" fill="white"/><path fill-rule="evenodd" clip-rule="evenodd" d="M11 21.75c5.937 0 10.75-4.813 10.75-10.75S16.937 1.25 11 1.25.25 6.063.25 11 5.063 21.75 11 21.75z" fill="#00d4ff"/><path d="M8.43 11.34l2.07 2.07 4.54-4.54" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>',
     },
 
     // Show modal
@@ -210,5 +211,101 @@ InstaVibe.Utils = {
                 <div class="loader-bar" style="width:100px;"><div class="loader-bar-inner"></div></div>
                 <p style="font-size:12px;opacity:0.6;margin-top:8px;">Chargement des données...</p>
             </div>`;
+    },
+
+    // Render verified badge for a user
+    renderVerifiedBadge(userId, large = false) {
+        const user = InstaVibe.DemoStore.findOne('users', u => u.id === userId);
+        if (!user || !user.verified) return '';
+        return `<span class="verified-badge ${large ? 'verified-badge--lg' : ''}">${this.icons.verified}</span>`;
+    },
+
+    // Render verified badge by username lookup
+    renderVerifiedBadgeByUsername(username, large = false) {
+        const user = InstaVibe.DemoStore.findOne('users', u => u.username === username);
+        if (!user || !user.verified) return '';
+        return `<span class="verified-badge ${large ? 'verified-badge--lg' : ''}">${this.icons.verified}</span>`;
+    },
+
+    // Share post
+    async sharePost(postId) {
+        const post = InstaVibe.DemoStore.findOne('posts', p => p.id === postId);
+        if (!post) return;
+
+        const shareUrl = window.location.origin + window.location.pathname + '#feed';
+        const shareData = {
+            title: `Pulse — ${post.username}`,
+            text: post.caption || `Découvrez ce post de ${post.username} sur Pulse!`,
+            url: shareUrl
+        };
+
+        // Try native share API first (mobile)
+        if (navigator.share) {
+            try {
+                await navigator.share(shareData);
+                this.showToast('Partagé avec succès!', 'success');
+                return;
+            } catch (e) {
+                if (e.name === 'AbortError') return;
+            }
+        }
+
+        // Fallback: show share menu
+        this._showShareMenu(shareUrl, post);
+    },
+
+    _showShareMenu(url, post) {
+        // Remove existing
+        document.getElementById('share-backdrop')?.remove();
+        document.getElementById('share-menu')?.remove();
+
+        const backdrop = document.createElement('div');
+        backdrop.id = 'share-backdrop';
+        backdrop.className = 'share-backdrop';
+        backdrop.onclick = () => this._closeShareMenu();
+
+        const menu = document.createElement('div');
+        menu.id = 'share-menu';
+        menu.className = 'share-menu';
+        menu.innerHTML = `
+            <div class="share-menu-header">
+                <h3>Partager</h3>
+                <button onclick="InstaVibe.Utils._closeShareMenu()" style="font-size:20px;">${this.icons.close}</button>
+            </div>
+            <div class="share-menu-options">
+                <div class="share-option" onclick="InstaVibe.Utils._copyLink('${url}')">
+                    <div class="share-option-icon">🔗</div>
+                    <span class="share-option-label">Copier</span>
+                </div>
+                <div class="share-option" onclick="window.open('https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(post.caption || '')}','_blank')">
+                    <div class="share-option-icon">𝕏</div>
+                    <span class="share-option-label">Twitter</span>
+                </div>
+                <div class="share-option" onclick="window.open('https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}','_blank')">
+                    <div class="share-option-icon">📘</div>
+                    <span class="share-option-label">Facebook</span>
+                </div>
+                <div class="share-option" onclick="window.open('https://wa.me/?text=${encodeURIComponent((post.caption || 'Regarde ça!') + ' ' + url)}','_blank')">
+                    <div class="share-option-icon">💬</div>
+                    <span class="share-option-label">WhatsApp</span>
+                </div>
+            </div>`;
+
+        document.body.appendChild(backdrop);
+        document.body.appendChild(menu);
+    },
+
+    _closeShareMenu() {
+        document.getElementById('share-backdrop')?.remove();
+        document.getElementById('share-menu')?.remove();
+    },
+
+    _copyLink(url) {
+        navigator.clipboard.writeText(url).then(() => {
+            this.showToast('Lien copié! 📋', 'success');
+            this._closeShareMenu();
+        }).catch(() => {
+            this.showToast('Erreur de copie', 'error');
+        });
     }
 };

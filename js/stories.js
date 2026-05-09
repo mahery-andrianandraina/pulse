@@ -79,12 +79,22 @@ InstaVibe.Stories = {
             <div class="story-progress-bar">${progressHtml}</div>
             <div class="story-header">
                 <div class="avatar avatar-sm"><img src="${story.userAvatar}" alt=""></div>
-                <span class="username">${story.username}</span>
+                <span class="username">${story.username}${InstaVibe.Utils.renderVerifiedBadge(story.userId)}</span>
                 <span class="time">${InstaVibe.Utils.timeAgo(story.createdAt)}</span>
                 <button class="close-btn" onclick="InstaVibe.Stories.closeViewer()">${InstaVibe.Utils.icons.close}</button>
             </div>
             <div class="story-image"><img src="${story.imageUrl}" alt="Story"></div>
-            ${story.text ? `<div style="position:absolute;bottom:60px;left:0;right:0;text-align:center;color:white;font-size:18px;font-weight:600;text-shadow:0 2px 8px rgba(0,0,0,0.7);padding:0 20px;">${InstaVibe.Utils.escapeHtml(story.text)}</div>` : ''}
+            ${story.text ? `<div style="position:absolute;bottom:80px;left:0;right:0;text-align:center;color:white;font-size:18px;font-weight:600;text-shadow:0 2px 8px rgba(0,0,0,0.7);padding:0 20px;">${InstaVibe.Utils.escapeHtml(story.text)}</div>` : ''}
+            <div class="story-reactions">
+                <div class="story-reaction-emojis">
+                    <button class="story-reaction-btn" onclick="InstaVibe.Stories.sendReaction('${story.userId}','❤️',this)">❤️</button>
+                    <button class="story-reaction-btn" onclick="InstaVibe.Stories.sendReaction('${story.userId}','🔥',this)">🔥</button>
+                    <button class="story-reaction-btn" onclick="InstaVibe.Stories.sendReaction('${story.userId}','😍',this)">😍</button>
+                    <button class="story-reaction-btn" onclick="InstaVibe.Stories.sendReaction('${story.userId}','😂',this)">😂</button>
+                    <button class="story-reaction-btn" onclick="InstaVibe.Stories.sendReaction('${story.userId}','😮',this)">😮</button>
+                    <button class="story-reaction-btn" onclick="InstaVibe.Stories.sendReaction('${story.userId}','👏',this)">👏</button>
+                </div>
+            </div>
             <div class="story-nav prev" onclick="InstaVibe.Stories._prevStory()"></div>
             <div class="story-nav next" onclick="InstaVibe.Stories._nextStory()"></div>
         </div>`;
@@ -117,5 +127,38 @@ InstaVibe.Stories = {
         clearTimeout(this.storyTimer);
         document.getElementById('story-viewer')?.remove();
         this._current = null;
+    },
+
+    sendReaction(toUserId, emoji, btn) {
+        // Floating emoji animation
+        const viewer = document.getElementById('story-viewer');
+        if (viewer) {
+            const floater = document.createElement('div');
+            floater.className = 'story-reaction-sent';
+            floater.textContent = emoji;
+            viewer.appendChild(floater);
+            setTimeout(() => floater.remove(), 1000);
+        }
+
+        // Create notification
+        const user = InstaVibe.Utils.getCurrentUser();
+        if (user && toUserId !== user.id) {
+            const notifId = InstaVibe.Utils.generateId('n_');
+            const notifData = {
+                id: notifId, userId: toUserId, fromUserId: user.id,
+                fromUsername: user.username, fromAvatar: user.avatarUrl,
+                type: 'reaction', emoji: emoji,
+                read: false, createdAt: Date.now()
+            };
+            InstaVibe.DemoStore.add('notifications', notifData);
+            if (!InstaVibe.DEMO_MODE) {
+                InstaVibe.db.collection('notifications').doc(notifId).set(notifData).catch(e => console.error(e));
+            }
+        }
+
+        // Pulse button
+        btn.style.transform = 'scale(1.4)';
+        setTimeout(() => { btn.style.transform = ''; }, 300);
+        InstaVibe.Utils.showToast(`${emoji} envoyé!`, 'success');
     }
 };

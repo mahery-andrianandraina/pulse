@@ -66,11 +66,12 @@ InstaVibe.Notifications = {
             case 'like': text = 'a aimé votre publication.'; action = `onclick="InstaVibe.Post.showComments('${n.postId}')"`; break;
             case 'comment': text = 'a commenté votre publication.'; action = `onclick="InstaVibe.Post.showComments('${n.postId}')"`; break;
             case 'follow': text = 'a commencé à vous suivre.'; action = `onclick="InstaVibe.App.navigate('user/${n.fromUserId}')"` ; break;
+            case 'reaction': text = `a réagi ${n.emoji || '❤️'} à votre story.`; action = `onclick="InstaVibe.App.navigate('user/${n.fromUserId}')"`; break;
         }
         return `<div class="notification-item ${n.read ? '' : 'unread'}" ${action}>
             <div class="avatar"><img src="${n.fromAvatar}" alt=""></div>
             <div class="notif-content">
-                <span class="username">${n.fromUsername}</span> ${text}
+                <span class="username">${n.fromUsername}${InstaVibe.Utils.renderVerifiedBadgeByUsername(n.fromUsername)}</span> ${text}
                 <span class="notif-time"> ${InstaVibe.Utils.timeAgo(n.createdAt)}</span>
             </div>
             ${n.postImage ? `<div class="notif-thumb"><img src="${n.postImage}" alt=""></div>` : ''}
