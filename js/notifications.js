@@ -34,7 +34,6 @@ InstaVibe.Notifications = {
         }
         
         const notifs = InstaVibe.DemoStore.find('notifications', n => n.userId === user?.id).sort((a, b) => b.createdAt - a.createdAt);
-        const content = document.getElementById('page-content');
 
         if (notifs.length === 0) {
             content.innerHTML = '<div class="empty-state page-enter"><div class="empty-state-icon">🔔</div><h3>Aucune notification</h3><p>Les interactions apparaîtront ici.</p></div>';

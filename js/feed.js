@@ -47,7 +47,6 @@ InstaVibe.Feed = {
             } catch (e) { console.error("Erreur chargement posts:", e); }
         }
 
-        const content = document.getElementById('page-content');
         const followingIds = InstaVibe.DemoStore.find('follows', f => f.followerId === user?.id).map(f => f.followingId);
         
         // Afficher TOUS les posts des vrais utilisateurs (suivis en premier, puis les autres)

@@ -161,7 +161,6 @@ InstaVibe.Utils = {
     navigate(hash) {
         window.location.hash = hash;
     },
-164: 
 
     // Loading
     showLoading() {
