@@ -120,10 +120,10 @@ InstaVibe.Messages = {
             <div id="chat-reply-preview" class="chat-reply-preview hidden"></div>
             <div id="chat-emoji-panel" class="chat-emoji-panel hidden"></div>
             <div class="chat-input-bar">
-                <button class="chat-action-btn" id="chat-emoji-btn" title="Emojis">😀</button>
-                <button class="chat-action-btn" id="chat-photo-btn" title="Photo">📷</button>
+                <button class="chat-action-btn" id="chat-emoji-btn" title="Emojis">${InstaVibe.Utils.icons.smile}</button>
+                <button class="chat-action-btn" id="chat-photo-btn" title="Photo">${InstaVibe.Utils.icons.camera}</button>
                 <input type="text" class="chat-input" placeholder="Message..." id="chat-msg-input">
-                <button class="chat-action-btn" id="chat-voice-btn" title="Vocal">🎤</button>
+                <button class="chat-action-btn" id="chat-voice-btn" title="Vocal">${InstaVibe.Utils.icons.mic}</button>
                 <button class="chat-send-btn" id="chat-send-btn">Envoyer</button>
                 <input type="file" id="chat-photo-input" accept="image/*" style="display:none">
             </div>
@@ -239,7 +239,7 @@ InstaVibe.Messages = {
         voiceBtn.onclick = async () => {
             if (recording) {
                 mediaRecorder?.stop();
-                voiceBtn.textContent = '🎤';
+                voiceBtn.innerHTML = InstaVibe.Utils.icons.mic;
                 voiceBtn.style.color = '';
                 recording = false;
                 return;
@@ -257,10 +257,10 @@ InstaVibe.Messages = {
                 };
                 mediaRecorder.start();
                 recording = true;
-                voiceBtn.textContent = '⏹';
+                voiceBtn.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2" ry="2"></rect></svg>';
                 voiceBtn.style.color = 'var(--accent-coral)';
                 // Auto-stop after 30s
-                setTimeout(() => { if (recording) { mediaRecorder?.stop(); voiceBtn.textContent = '🎤'; voiceBtn.style.color = ''; recording = false; } }, 30000);
+                setTimeout(() => { if (recording) { mediaRecorder?.stop(); voiceBtn.innerHTML = InstaVibe.Utils.icons.mic; voiceBtn.style.color = ''; recording = false; } }, 30000);
             } catch (err) {
                 InstaVibe.Utils.showToast('Micro non disponible', 'error');
             }
