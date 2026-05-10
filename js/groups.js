@@ -172,6 +172,16 @@ InstaVibe.Groups = {
     },
 
     showCreateGroupModal() {
+        const user = InstaVibe.Utils.getCurrentUser();
+        if (!user.isPremium) {
+            if (InstaVibe.Premium && typeof InstaVibe.Premium.showPaywall === 'function') {
+                InstaVibe.Premium.showPaywall('groups');
+            } else {
+                InstaVibe.Utils.showToast("La création de groupe nécessite un abonnement Premium.", "error");
+            }
+            return;
+        }
+
         let html = `
         <div class="modal-header">
             <button onclick="InstaVibe.Utils.closeModal()">Annuler</button>

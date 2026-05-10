@@ -161,6 +161,7 @@ InstaVibe.Utils = {
         smile: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>',
         mic: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>',
         users: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>',
+        premium: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: gold; fill: gold;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"></polygon></svg>',
     },
 
     // Show modal
@@ -241,15 +242,19 @@ InstaVibe.Utils = {
     // Render verified badge for a user
     renderVerifiedBadge(userId, large = false) {
         const user = InstaVibe.DemoStore.findOne('users', u => u.id === userId);
-        if (!user || !user.verified) return '';
-        return `<span class="verified-badge ${large ? 'verified-badge--lg' : ''}">${this.icons.verified}</span>`;
+        if (!user) return '';
+        if (user.isPremium) return `<span class="verified-badge ${large ? 'verified-badge--lg' : ''}" style="margin-left:4px;display:inline-flex;align-items:center;width:14px;height:14px;">${this.icons.premium}</span>`;
+        if (user.verified) return `<span class="verified-badge ${large ? 'verified-badge--lg' : ''}">${this.icons.verified}</span>`;
+        return '';
     },
 
     // Render verified badge by username lookup
     renderVerifiedBadgeByUsername(username, large = false) {
         const user = InstaVibe.DemoStore.findOne('users', u => u.username === username);
-        if (!user || !user.verified) return '';
-        return `<span class="verified-badge ${large ? 'verified-badge--lg' : ''}">${this.icons.verified}</span>`;
+        if (!user) return '';
+        if (user.isPremium) return `<span class="verified-badge ${large ? 'verified-badge--lg' : ''}" style="margin-left:4px;display:inline-flex;align-items:center;width:14px;height:14px;">${this.icons.premium}</span>`;
+        if (user.verified) return `<span class="verified-badge ${large ? 'verified-badge--lg' : ''}">${this.icons.verified}</span>`;
+        return '';
     },
 
     // Share post

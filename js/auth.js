@@ -144,7 +144,7 @@ InstaVibe.Auth = {
             const defaultAvatar = `https://ui-avatars.com/api/?name=${name.charAt(0)}&background=random&color=fff`;
             const newUser = {
                 username, displayName: name, bio: '', avatarUrl: defaultAvatar,
-                followersCount: 0, followingCount: 0, postsCount: 0, createdAt: Date.now()
+                followersCount: 0, followingCount: 0, postsCount: 0, isPremium: false, createdAt: Date.now()
             };
             await InstaVibe.db.collection('users').doc(cred.user.uid).set(newUser);
             

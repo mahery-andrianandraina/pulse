@@ -104,6 +104,17 @@ InstaVibe.Post = {
         if (!this.selectedFile && !caption) return;
         
         const user = InstaVibe.Utils.getCurrentUser();
+        
+        // 🔒 Limite Premium : 3 posts max pour les comptes gratuits
+        if (!user.isPremium && (user.postsCount >= 3)) {
+            if (InstaVibe.Premium && typeof InstaVibe.Premium.showPaywall === 'function') {
+                InstaVibe.Premium.showPaywall('posts');
+            } else {
+                InstaVibe.Utils.showToast("Limite de posts atteinte. Passez Premium.", "error");
+            }
+            return;
+        }
+
         const postId = InstaVibe.Utils.generateId('post_');
         
         try {
