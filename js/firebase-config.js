@@ -28,9 +28,32 @@ if (!DEMO_MODE) {
 const DemoStore = {
     _data: null,
     init() {
-        const saved = localStorage.getItem('instavibe_data');
-        this._data = saved ? JSON.parse(saved) : this._seedData();
-        this.save();
+        let saved = localStorage.getItem('instavibe_data');
+        if (saved) {
+            try {
+                const parsed = JSON.parse(saved);
+                let cleaned = false;
+                // Nettoyage automatique des vieilles images Base64 massives pour libérer le quota
+                if (parsed.posts) {
+                    parsed.posts.forEach(p => {
+                        if (p.imageUrl && p.imageUrl.startsWith('data:image') && p.imageUrl.length > 50000) {
+                            p.imageUrl = 'https://picsum.photos/seed/cleaned/800/800'; // Fallback
+                            cleaned = true;
+                        }
+                    });
+                }
+                this._data = parsed;
+                if (cleaned) {
+                    console.log("🧹 Nettoyage des anciennes images lourdes terminé !");
+                    this.save();
+                }
+            } catch(e) {
+                this._data = this._seedData();
+            }
+        } else {
+            this._data = this._seedData();
+            this.save();
+        }
     },
     save() { 
         try {
