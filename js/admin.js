@@ -94,6 +94,7 @@ InstaVibe.Admin = {
                             ${user.username} 
                             ${isAdmin ? '<span class="admin-badge badge-admin">Admin</span>' : ''}
                             ${isBanned ? '<span class="admin-badge badge-banned">Banni</span>' : ''}
+                            ${user.premiumRequested && !user.isPremium ? '<span class="admin-badge" style="background:var(--accent-coral); color:white; font-size:10px; animation: pulse 2s infinite;">🔔 DEMANDE PREMIUM</span>' : ''}
                         </div>
                         <div class="admin-email">${user.displayName || 'Sans nom'}</div>
                         <div class="admin-user-metrics">
@@ -141,9 +142,16 @@ InstaVibe.Admin = {
         const isPremium = !user.isPremium;
         InstaVibe.DemoStore.update('users', userId, { isPremium: isPremium });
         
+        if (isPremium) {
+            InstaVibe.Notifications.send(userId, 'premium');
+        }
+
         if (!InstaVibe.DEMO_MODE) {
             try {
-                await InstaVibe.db.collection('users').doc(userId).update({ isPremium: isPremium });
+                await InstaVibe.db.collection('users').doc(userId).update({ 
+                    isPremium: isPremium,
+                    premiumRequested: false // Reset request after action
+                });
             } catch(e) { console.error(e); }
         }
 

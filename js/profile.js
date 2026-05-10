@@ -42,6 +42,13 @@ InstaVibe.Profile = {
             <div class="profile-actions">
                 ${isOwn
                     ? `<button class="btn btn-secondary btn-sm" onclick="InstaVibe.Profile.editProfile()">Modifier</button>
+                       ${!user.isPremium 
+                            ? `<button class="btn btn-sm" id="premium-req-btn" 
+                                style="background: ${user.premiumRequested ? 'var(--bg-secondary)' : 'var(--gradient-pulse)'}; color: white; border:none;" 
+                                onclick="${user.premiumRequested ? '' : 'InstaVibe.Profile.requestPremium()'}">
+                                ${user.premiumRequested ? '⌛ Demande en cours' : '👑 Demander Premium'}
+                               </button>` 
+                            : ''}
                        <button class="btn btn-glow btn-sm" onclick="InstaVibe.App.navigate('explore')">Découvrir</button>`
                     : `<button class="btn ${isFollowing?'btn-secondary':'btn-primary'} btn-sm" id="follow-btn" onclick="InstaVibe.Profile.toggleFollow('${targetId}')">${isFollowing?'Suivi(e)':'Suivre'}</button>
                        <button class="btn btn-secondary btn-sm" onclick="InstaVibe.App.navigate('chat/${targetId}')">Message</button>`}
@@ -107,11 +114,32 @@ InstaVibe.Profile = {
             // Envoyer le follow et la notification à Firestore
             if (!InstaVibe.DEMO_MODE) {
                 InstaVibe.db.collection('follows').doc(followId).set(followData).catch(e => console.error(e));
-                InstaVibe.db.collection('notifications').doc(notifId).set(notifData).then(() => {
-                    console.log("✅ Notification de follow envoyée à", targetId);
-                }).catch(e => console.error(e));
+                InstaVibe.Notifications.send(targetId, 'follow');
             }
         }
+    },
+
+    async requestPremium() {
+        const user = InstaVibe.Utils.getCurrentUser();
+        if (!user || user.isPremium || user.premiumRequested) return;
+
+        const btn = document.getElementById('premium-req-btn');
+        if (btn) {
+            btn.textContent = '⌛ Envoi...';
+            btn.disabled = true;
+        }
+
+        InstaVibe.DemoStore.update('users', user.id, { premiumRequested: true });
+        
+        if (!InstaVibe.DEMO_MODE) {
+            try {
+                await InstaVibe.db.collection('users').doc(user.id).update({ premiumRequested: true });
+                // Note: On pourrait envoyer une notif à l'admin ici si on avait son ID
+            } catch(e) { console.error(e); }
+        }
+
+        InstaVibe.Utils.showToast('Demande envoyée à l\'administrateur !', 'success');
+        this.render(); // Refresh profile
     },
 
     showFollowList(userId, type) {

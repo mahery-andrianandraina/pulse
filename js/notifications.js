@@ -59,6 +59,32 @@ InstaVibe.Notifications = {
         content.innerHTML = html;
     },
 
+    async send(targetUserId, type, data = {}) {
+        const currentUser = InstaVibe.Utils.getCurrentUser();
+        if (!currentUser || targetUserId === currentUser.id) return;
+
+        const notifId = InstaVibe.Utils.generateId('n_');
+        const notifData = {
+            id: notifId,
+            userId: targetUserId,
+            fromUserId: currentUser.id,
+            fromUsername: currentUser.username,
+            fromAvatar: currentUser.avatarUrl,
+            type: type,
+            read: false,
+            createdAt: Date.now(),
+            ...data
+        };
+
+        InstaVibe.DemoStore.add('notifications', notifData);
+        if (!InstaVibe.DEMO_MODE) {
+            try {
+                await InstaVibe.db.collection('notifications').doc(notifId).set(notifData);
+            } catch (e) { console.error("Erreur envoi notification:", e); }
+        }
+        return notifData;
+    },
+
     _renderNotif(n) {
         let text = '';
         let action = '';
@@ -67,6 +93,7 @@ InstaVibe.Notifications = {
             case 'comment': text = 'a commenté votre publication.'; action = `onclick="InstaVibe.Post.showComments('${n.postId}')"`; break;
             case 'follow': text = 'a commencé à vous suivre.'; action = `onclick="InstaVibe.App.navigate('user/${n.fromUserId}')"` ; break;
             case 'reaction': text = `a réagi ${n.emoji || '❤️'} à votre story.`; action = `onclick="InstaVibe.App.navigate('user/${n.fromUserId}')"`; break;
+            case 'premium': text = 'a activé votre statut **Pulse Premium** ! 👑'; action = `onclick="InstaVibe.App.navigate('profile/${n.userId}')"`; break;
         }
         return `<div class="notification-item ${n.read ? '' : 'unread'}" ${action}>
             <div class="avatar"><img src="${n.fromAvatar}" alt=""></div>
