@@ -57,7 +57,14 @@ const DemoStore = {
     },
     save() { 
         try {
-            localStorage.setItem('instavibe_data', JSON.stringify(this._data)); 
+            // Empêche les énormes images Base64 d'aller dans le localStorage
+            const jsonStr = JSON.stringify(this._data, (key, value) => {
+                if (typeof value === 'string' && value.startsWith('data:image') && value.length > 50000) {
+                    return 'https://picsum.photos/seed/toobig/800/800';
+                }
+                return value;
+            });
+            localStorage.setItem('instavibe_data', jsonStr); 
         } catch (e) {
             if (e.name === 'QuotaExceededError' || e.code === 22) {
                 console.warn("⚠️ LocalStorage quota atteint. Les données sont conservées en mémoire pour cette session.");
