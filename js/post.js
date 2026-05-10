@@ -146,20 +146,27 @@ InstaVibe.Post = {
             
             // Sauvegarder dans Firestore pour les autres utilisateurs
             if (!InstaVibe.DEMO_MODE) {
-                InstaVibe.db.collection('posts').doc(postId).set(post)
-                    .then(() => console.log("✅ Post publié sur Firestore"))
-                    .catch(e => console.error("Erreur Firestore post:", e));
+                await InstaVibe.db.collection('posts').doc(postId).set(post);
+                console.log("✅ Post publié sur Firestore");
             }
             
             this.selectedImage = null; this.selectedFile = null; this.selectedFilter = 'filter-none';
             const navTarget = this.currentGroupId ? `group/${this.currentGroupId}` : 'feed';
-            this.currentGroupId = null;
+            this.currentGroupId = null; // ✅ Reset du groupe
+            
             InstaVibe.Utils.showToast('Publié avec succès ⚡', 'success');
+            
+            // ✅ On ferme la modale pour éviter qu'elle reste bloquée sur "Publication..."
+            InstaVibe.Utils.closeModal(); 
             InstaVibe.App.navigate(navTarget);
         } catch (e) {
+            console.error(e);
             InstaVibe.Utils.showToast('Erreur lors de la publication', 'error');
-            document.getElementById('publish-btn').disabled = false;
-            document.getElementById('publish-btn').textContent = 'Publier';
+            const btn = document.getElementById('publish-btn');
+            if (btn) {
+                btn.disabled = false;
+                btn.textContent = 'Publier';
+            }
         }
     },
 
