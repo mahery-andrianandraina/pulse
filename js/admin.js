@@ -30,7 +30,22 @@ InstaVibe.Admin = {
         document.getElementById('stories-bar-container').classList.add('hidden');
 
         const content = document.getElementById('page-content');
-        // Filtrer les utilisateurs fictifs (seed data) pour ne montrer que les vrais comptes Firebase
+        
+        // Charger TOUS les utilisateurs depuis Firestore pour l'admin
+        if (!InstaVibe.DEMO_MODE) {
+            try {
+                const snap = await InstaVibe.db.collection('users').get();
+                snap.docs.forEach(doc => {
+                    const data = { id: doc.id, ...doc.data() };
+                    if (!InstaVibe.DemoStore.findOne('users', u => u.id === doc.id)) {
+                        InstaVibe.DemoStore.add('users', data, true);
+                    } else {
+                        InstaVibe.DemoStore.update('users', doc.id, data, true);
+                    }
+                });
+            } catch(e) { console.error("Erreur admin users:", e); }
+        }
+
         const users = InstaVibe.DemoStore.get('users').filter(u => !u.id.startsWith('user_') && u.id !== 'demo_user');
         const posts = InstaVibe.DemoStore.get('posts');
         const interactions = InstaVibe.DemoStore.get('likes').length + InstaVibe.DemoStore.get('comments').length;
