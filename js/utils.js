@@ -70,16 +70,38 @@ InstaVibe.Utils = {
                 const downloadUrl = await snapshot.ref.getDownloadURL();
                 return downloadUrl;
             } catch (error) {
-                console.warn("Erreur Storage Firebase (non activé?). Bascule sur l'encodage local.", error);
-                // On continue pour faire le fallback en dessous
+                console.warn("Erreur Storage Firebase (non activé?). Bascule sur ImgBB.", error);
             }
         }
 
-        // Fallback local (Demo Mode ou Storage désactivé)
-        // Compression stricte pour éviter de saturer Firestore (limite de 1Mo par document)
-        console.log(`Fallback local pour ${path}: Compression de l'image...`);
-        const compressedBlob = await this.compressImage(file, 800, 0.6);
-        return await this.fileToDataUrl(compressedBlob);
+        // Upload to ImgBB
+        try {
+            console.log(`Upload vers ImgBB pour ${path}...`);
+            // On compresse l'image pour optimiser la rapidité et le stockage
+            const compressedBlob = await this.compressImage(file, 1080, 0.8);
+            
+            const formData = new FormData();
+            formData.append('key', '595fd75131a5a62e81fa3a51c5257b47');
+            formData.append('image', compressedBlob);
+            
+            const response = await fetch('https://api.imgbb.com/1/upload', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const result = await response.json();
+            if (result.success) {
+                return result.data.display_url;
+            } else {
+                throw new Error(result.error.message);
+            }
+        } catch (error) {
+            console.error("Erreur ImgBB:", error);
+            // Fallback d'urgence: encodage local Base64
+            console.log(`Fallback local Base64 pour ${path}`);
+            const compressedBlob = await this.compressImage(file, 800, 0.5);
+            return await this.fileToDataUrl(compressedBlob);
+        }
     },
 
     // Show toast notification
