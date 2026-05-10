@@ -156,12 +156,14 @@ InstaVibe.Post = {
             
             InstaVibe.Utils.showToast('Publié avec succès ⚡', 'success');
             
-            // ✅ On ferme la modale pour éviter qu'elle reste bloquée sur "Publication..."
-            InstaVibe.Utils.closeModal(); 
-            InstaVibe.App.navigate(navTarget);
+            // On attend la navigation pour s'assurer que l'utilisateur change de page
+            await InstaVibe.App.navigate(navTarget);
+            
         } catch (e) {
-            console.error(e);
+            console.error("Erreur publication:", e);
             InstaVibe.Utils.showToast('Erreur lors de la publication', 'error');
+        } finally {
+            // Toujours réinitialiser le bouton si on est encore sur la page (en cas de lenteur)
             const btn = document.getElementById('publish-btn');
             if (btn) {
                 btn.disabled = false;
