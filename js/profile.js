@@ -168,7 +168,7 @@ InstaVibe.Profile = {
                 
                 InstaVibe.DemoStore.update('users', user.id, u);
                 Object.assign(InstaVibe.Auth.currentUser, u);
-                localStorage.setItem('instavibe_user', JSON.stringify(InstaVibe.Auth.currentUser));
+                try { localStorage.setItem('instavibe_user', JSON.stringify(InstaVibe.Auth.currentUser)); } catch (e) { console.warn('Quota exceeded'); }
                 
                 // Mettre à jour Firestore
                 if (!InstaVibe.DEMO_MODE) {

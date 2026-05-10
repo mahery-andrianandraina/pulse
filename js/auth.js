@@ -83,7 +83,7 @@ InstaVibe.Auth = {
         const password = document.getElementById('login-password').value;
         if (InstaVibe.DEMO_MODE) {
             this.currentUser = InstaVibe.DemoStore.findOne('users', u => u.id === 'demo_user');
-            localStorage.setItem('instavibe_user', JSON.stringify(this.currentUser));
+            try { localStorage.setItem('instavibe_user', JSON.stringify(this.currentUser)); } catch (e) { console.warn('Quota exceeded'); }
             this._onAuthSuccess(); return;
         }
         try {
@@ -114,7 +114,7 @@ InstaVibe.Auth = {
                 } else {
                     InstaVibe.DemoStore.update('users', doc.id, userData);
                 }
-                localStorage.setItem('instavibe_user', JSON.stringify(userData));
+                try { localStorage.setItem('instavibe_user', JSON.stringify(userData)); } catch (e) { console.warn('Quota exceeded'); }
                 this.currentUser = userData; // Assign currentUser
             }
             
@@ -135,7 +135,7 @@ InstaVibe.Auth = {
         if (InstaVibe.DEMO_MODE) {
             InstaVibe.DemoStore.update('users', 'demo_user', { username, displayName: name });
             this.currentUser = InstaVibe.DemoStore.findOne('users', u => u.id === 'demo_user');
-            localStorage.setItem('instavibe_user', JSON.stringify(this.currentUser));
+            try { localStorage.setItem('instavibe_user', JSON.stringify(this.currentUser)); } catch (e) { console.warn('Quota exceeded'); }
             this._onAuthSuccess(); return;
         }
         try {
@@ -151,7 +151,7 @@ InstaVibe.Auth = {
             // Sync to local DemoStore for hybrid mode
             newUser.id = cred.user.uid;
             InstaVibe.DemoStore.add('users', newUser);
-            localStorage.setItem('instavibe_user', JSON.stringify(newUser));
+            try { localStorage.setItem('instavibe_user', JSON.stringify(newUser)); } catch (e) { console.warn('Quota exceeded'); }
             this.currentUser = newUser; // FIXED: Assign currentUser!
             
             this._onAuthSuccess();
@@ -164,7 +164,7 @@ InstaVibe.Auth = {
     async _handleGoogleAuth() {
         if (InstaVibe.DEMO_MODE) {
             this.currentUser = InstaVibe.DemoStore.findOne('users', u => u.id === 'demo_user');
-            localStorage.setItem('instavibe_user', JSON.stringify(this.currentUser));
+            try { localStorage.setItem('instavibe_user', JSON.stringify(this.currentUser)); } catch (e) { console.warn('Quota exceeded'); }
             this._onAuthSuccess(); return;
         }
         try {
@@ -187,7 +187,7 @@ InstaVibe.Auth = {
             if (!InstaVibe.DemoStore.findOne('users', u => u.id === doc.id)) InstaVibe.DemoStore.add('users', userData);
             else InstaVibe.DemoStore.update('users', doc.id, userData);
             
-            localStorage.setItem('instavibe_user', JSON.stringify(userData));
+            try { localStorage.setItem('instavibe_user', JSON.stringify(userData)); } catch (e) { console.warn('Quota exceeded'); }
             this.currentUser = userData;
             
             this._onAuthSuccess();
