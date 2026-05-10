@@ -123,7 +123,16 @@ const DemoStore = {
             { id: 'notif_2', userId: 'demo_user', fromUserId: 'user_5', fromUsername: 'emma.art', fromAvatar: 'https://i.pravatar.cc/150?img=9', type: 'follow', read: false, createdAt: now - 2 * h },
             { id: 'notif_3', userId: 'demo_user', fromUserId: 'user_3', fromUsername: 'lea.foodie', fromAvatar: 'https://i.pravatar.cc/150?img=5', type: 'comment', postId: 'post_3', postImage: 'https://picsum.photos/seed/paris1/100/100', read: true, createdAt: now - 6 * h },
         ];
-        return { users: [...users, demoUser], posts, comments, stories, follows, likes, bookmarks, conversations, messages, notifications };
+        const groups = [
+            { id: 'global', name: 'Pulse Community', description: 'Le groupe officiel de la communauté Pulse', coverUrl: 'https://picsum.photos/seed/community/800/300', ownerId: 'demo_user', createdAt: now - 100 * d }
+        ];
+        const groupMembers = [
+            { id: 'gm_1', groupId: 'global', userId: 'demo_user', role: 'admin', createdAt: now - 100 * d },
+            { id: 'gm_2', groupId: 'global', userId: 'user_1', role: 'member', createdAt: now - 90 * d },
+            { id: 'gm_3', groupId: 'global', userId: 'user_2', role: 'member', createdAt: now - 90 * d },
+            { id: 'gm_4', groupId: 'global', userId: 'user_3', role: 'member', createdAt: now - 80 * d }
+        ];
+        return { users: [...users, demoUser], posts, comments, stories, follows, likes, bookmarks, conversations, messages, notifications, groups, groupMembers };
     }
 };
 

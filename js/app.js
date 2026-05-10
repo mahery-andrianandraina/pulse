@@ -49,7 +49,8 @@ InstaVibe.App = {
             switch (page) {
                 case 'feed': await InstaVibe.Feed.render(); break;
                 case 'explore': await InstaVibe.Explore.render(); break;
-                case 'groups': await InstaVibe.Groups.render(); break;
+                case 'groups': await InstaVibe.Groups.renderHub(); break;
+                case 'group': if (param) await InstaVibe.Groups.renderDetail(param); break;
                 case 'create':
                     InstaVibe.Post.renderCreatePage();
                     document.getElementById('stories-bar-container').classList.add('hidden');

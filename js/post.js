@@ -13,7 +13,7 @@ InstaVibe.Post = {
         content.innerHTML = `
         <div class="create-page animate-fadeIn">
             <div class="modal-header">
-                <button onclick="InstaVibe.App.navigate('${this.currentGroupId ? 'groups' : 'feed'}')" style="font-size:16px;font-weight:600;color:var(--accent-coral)">Annuler</button>
+                <button onclick="InstaVibe.App.navigate('${this.currentGroupId ? `group/${this.currentGroupId}` : 'feed'}')" style="font-size:16px;font-weight:600;color:var(--accent-coral)">Annuler</button>
                 <h3>Créer</h3>
                 <button class="btn btn-primary btn-sm" id="publish-btn" disabled>Publier</button>
             </div>
@@ -113,7 +113,7 @@ InstaVibe.Post = {
             }
             
             this.selectedImage = null; this.selectedFile = null; this.selectedFilter = 'filter-none';
-            const navTarget = this.currentGroupId ? 'groups' : 'feed';
+            const navTarget = this.currentGroupId ? `group/${this.currentGroupId}` : 'feed';
             this.currentGroupId = null;
             InstaVibe.Utils.showToast('Publié avec succès ⚡', 'success');
             InstaVibe.App.navigate(navTarget);
@@ -131,6 +131,7 @@ InstaVibe.Post = {
         const isFollowing = InstaVibe.DemoStore.findOne('follows', f => f.followerId === user?.id && f.followingId === post.userId);
         const isMe = post.userId === user?.id;
         const icons = InstaVibe.Utils.icons;
+        const group = post.groupId ? InstaVibe.DemoStore.findOne('groups', g => g.id === post.groupId) : null;
 
         return `<article class="post-card stagger-item" data-post-id="${post.id}">
             <div class="post-header">
@@ -138,7 +139,7 @@ InstaVibe.Post = {
                 <div class="post-header-info" onclick="InstaVibe.App.navigate('user/${post.userId}')" style="cursor:pointer">
                     <div class="username" style="display:flex;align-items:center;flex-wrap:wrap;">
                         ${post.username}${InstaVibe.Utils.renderVerifiedBadge(post.userId)}
-                        ${post.groupId ? `<span style="color:var(--text-secondary);margin:0 4px;">▶</span><span style="font-weight:600;color:var(--accent-cyan);">Communauté</span>` : ''}
+                        ${group ? `<span style="color:var(--text-secondary);margin:0 4px;">▶</span><span style="font-weight:600;color:var(--accent-cyan);" onclick="event.stopPropagation(); InstaVibe.App.navigate('group/${group.id}')">${InstaVibe.Utils.escapeHtml(group.name)}</span>` : ''}
                     </div>
                     ${post.location ? `<div class="location">📍 ${post.location}</div>` : ''}
                 </div>
