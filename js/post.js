@@ -105,8 +105,9 @@ InstaVibe.Post = {
         
         const user = InstaVibe.Utils.getCurrentUser();
         
-        // 🔒 Limite Premium : 3 posts max pour les comptes gratuits
-        if (!user.isPremium && (user.postsCount >= 3)) {
+        // 🔒 Limite Premium : On compte les posts réels de l'utilisateur dans le Store
+        const myPosts = InstaVibe.DemoStore.find('posts', p => p.userId === user.id);
+        if (!user.isPremium && (myPosts.length >= 3)) {
             if (InstaVibe.Premium && typeof InstaVibe.Premium.showPaywall === 'function') {
                 InstaVibe.Premium.showPaywall('posts');
             } else {
