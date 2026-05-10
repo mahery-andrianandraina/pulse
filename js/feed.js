@@ -9,6 +9,9 @@ InstaVibe.Feed = {
         document.getElementById('top-bar').innerHTML = `
             <span class="top-bar-brand">Pulse</span>
             <div class="top-bar-actions">
+                <button class="btn-icon" onclick="InstaVibe.App.navigate('groups')">
+                    ${InstaVibe.Utils.icons.users}
+                </button>
                 <button class="btn-icon" onclick="InstaVibe.App.navigate('notifications')" style="position:relative;">
                     ${InstaVibe.Utils.icons.heart}
                     <span class="notification-badge hidden" id="notif-badge"></span>
@@ -49,9 +52,9 @@ InstaVibe.Feed = {
 
         const followingIds = InstaVibe.DemoStore.find('follows', f => f.followerId === user?.id).map(f => f.followingId);
         
-        // Afficher TOUS les posts des vrais utilisateurs (suivis en premier, puis les autres)
+        // Afficher TOUS les posts des vrais utilisateurs (suivis en premier, puis les autres) sans groupId
         const allRealPosts = InstaVibe.DemoStore.get('posts')
-            .filter(p => !p.userId.startsWith('user_') && p.userId !== 'demo_user');
+            .filter(p => !p.userId.startsWith('user_') && p.userId !== 'demo_user' && !p.groupId);
         
         const followedPosts = allRealPosts
             .filter(p => followingIds.includes(p.userId) || p.userId === user?.id)

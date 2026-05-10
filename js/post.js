@@ -5,13 +5,15 @@ InstaVibe.Post = {
     selectedFilter: 'filter-none',
     selectedImage: null, // Base64 preview
     selectedFile: null,  // Raw file to upload
+    currentGroupId: null, // Track group context
 
-    renderCreatePage() {
+    renderCreatePage(groupId = null) {
+        this.currentGroupId = groupId;
         const content = document.getElementById('page-content');
         content.innerHTML = `
         <div class="create-page animate-fadeIn">
             <div class="modal-header">
-                <button onclick="InstaVibe.App.navigate('feed')" style="font-size:16px;font-weight:600;color:var(--accent-coral)">Annuler</button>
+                <button onclick="InstaVibe.App.navigate('${this.currentGroupId ? 'groups' : 'feed'}')" style="font-size:16px;font-weight:600;color:var(--accent-coral)">Annuler</button>
                 <h3>Créer</h3>
                 <button class="btn btn-primary btn-sm" id="publish-btn" disabled>Publier</button>
             </div>
@@ -95,6 +97,7 @@ InstaVibe.Post = {
                 caption: document.getElementById('post-caption')?.value || '',
                 filter: this.selectedFilter,
                 location: document.getElementById('location-value')?.textContent || '',
+                groupId: this.currentGroupId,
                 likesCount: 0, commentsCount: 0, createdAt: Date.now()
             };
             
@@ -110,8 +113,10 @@ InstaVibe.Post = {
             }
             
             this.selectedImage = null; this.selectedFile = null; this.selectedFilter = 'filter-none';
+            const navTarget = this.currentGroupId ? 'groups' : 'feed';
+            this.currentGroupId = null;
             InstaVibe.Utils.showToast('Publié avec succès ⚡', 'success');
-            InstaVibe.App.navigate('feed');
+            InstaVibe.App.navigate(navTarget);
         } catch (e) {
             InstaVibe.Utils.showToast('Erreur lors de la publication', 'error');
             document.getElementById('publish-btn').disabled = false;
@@ -131,7 +136,10 @@ InstaVibe.Post = {
             <div class="post-header">
                 <div class="avatar-spark${Math.random()>0.5?' viewed':''}"><div class="avatar" onclick="InstaVibe.App.navigate('user/${post.userId}')" style="cursor:pointer"><img src="${post.userAvatar}" alt=""></div></div>
                 <div class="post-header-info" onclick="InstaVibe.App.navigate('user/${post.userId}')" style="cursor:pointer">
-                    <div class="username">${post.username}${InstaVibe.Utils.renderVerifiedBadge(post.userId)}</div>
+                    <div class="username" style="display:flex;align-items:center;flex-wrap:wrap;">
+                        ${post.username}${InstaVibe.Utils.renderVerifiedBadge(post.userId)}
+                        ${post.groupId ? `<span style="color:var(--text-secondary);margin:0 4px;">▶</span><span style="font-weight:600;color:var(--accent-cyan);">Communauté</span>` : ''}
+                    </div>
                     ${post.location ? `<div class="location">📍 ${post.location}</div>` : ''}
                 </div>
                 ${!isMe ? `
