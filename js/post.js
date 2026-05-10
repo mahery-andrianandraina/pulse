@@ -48,13 +48,36 @@ InstaVibe.Post = {
             this.selectedImage = dataUrl;
             document.getElementById('create-preview').innerHTML = `<img src="${dataUrl}" class="${this.selectedFilter}" id="preview-img">`;
             this._renderFilters(dataUrl);
-            document.getElementById('publish-btn').disabled = false;
+            this._checkPublishState();
         });
+        document.getElementById('post-caption')?.addEventListener('input', () => this._checkPublishState());
         document.getElementById('publish-btn')?.addEventListener('click', () => this._publishPost());
         document.getElementById('add-location-btn')?.addEventListener('click', () => {
             const loc = prompt('Lieu:');
             if (loc) document.getElementById('location-value').textContent = loc;
         });
+    },
+
+    _checkPublishState() {
+        const hasImage = this.selectedImage !== null;
+        const hasText = document.getElementById('post-caption')?.value.trim().length > 0;
+        document.getElementById('publish-btn').disabled = !(hasImage || hasText);
+        
+        // Update preview area style if text-only
+        const preview = document.getElementById('create-preview');
+        if (!hasImage && hasText) {
+            preview.style.background = 'var(--gradient-pulse)';
+            preview.innerHTML = `<div style="padding:40px 20px;text-align:center;color:white;font-size:24px;font-weight:700;word-wrap:break-word;display:flex;align-items:center;justify-content:center;height:100%;text-shadow:0 2px 4px rgba(0,0,0,0.5);">${InstaVibe.Utils.escapeHtml(document.getElementById('post-caption').value)}</div>`;
+        } else if (!hasImage && !hasText) {
+            preview.style.background = '';
+            preview.innerHTML = `
+                <div class="create-upload-area" id="upload-area">
+                    ${InstaVibe.Utils.icons.image}
+                    <p>Choisissez une photo (ou écrivez un texte)</p>
+                    <button class="btn btn-glow">Sélectionner</button>
+                </div>`;
+            document.getElementById('upload-area')?.addEventListener('click', () => document.getElementById('file-input').click());
+        }
     },
 
     _renderFilters(imageUrl) {
@@ -77,7 +100,9 @@ InstaVibe.Post = {
     },
 
     async _publishPost() {
-        if (!this.selectedImage || !this.selectedFile) return;
+        const caption = document.getElementById('post-caption')?.value.trim() || '';
+        if (!this.selectedFile && !caption) return;
+        
         const user = InstaVibe.Utils.getCurrentUser();
         const postId = InstaVibe.Utils.generateId('post_');
         
@@ -85,9 +110,12 @@ InstaVibe.Post = {
             document.getElementById('publish-btn').disabled = true;
             document.getElementById('publish-btn').textContent = 'Publication...';
             
-            // 1. Upload the physical file
-            const path = `users/${user.id}/posts/${postId}.jpg`;
-            const publicUrl = await InstaVibe.Utils.uploadFile(this.selectedFile, path);
+            let publicUrl = '';
+            // 1. Upload the physical file if present
+            if (this.selectedFile) {
+                const path = `users/${user.id}/posts/${postId}.jpg`;
+                publicUrl = await InstaVibe.Utils.uploadFile(this.selectedFile, path);
+            }
             
             // 2. Create the post object
             const post = {
@@ -153,7 +181,10 @@ InstaVibe.Post = {
                 <button class="btn-icon" style="width:32px;height:32px; flex-shrink:0;">${icons.more}</button>
             </div>
             <div class="post-image-container" ondblclick="InstaVibe.Post.doubleTapLike('${post.id}', this)">
-                <img src="${post.imageUrl}" alt="" class="${post.filter || ''}" loading="lazy">
+                ${post.imageUrl 
+                    ? `<img src="${post.imageUrl}" alt="" class="${post.filter || ''}" loading="lazy">`
+                    : `<div style="background:var(--gradient-pulse);width:100%;aspect-ratio:4/5;display:flex;align-items:center;justify-content:center;padding:30px;color:white;font-size:clamp(20px, 6vw, 32px);font-weight:700;text-align:center;text-shadow:0 2px 10px rgba(0,0,0,0.5);word-wrap:break-word;overflow:hidden;box-sizing:border-box;">${InstaVibe.Utils.escapeHtml(post.caption)}</div>`
+                }
                 <div class="double-tap-heart" id="heart-${post.id}">
                     <svg width="80" height="80" viewBox="0 0 24 24" fill="var(--accent-cyan)"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>
                 </div>

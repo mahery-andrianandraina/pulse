@@ -47,14 +47,31 @@ InstaVibe.Stories = {
     },
 
     createStory() {
-        const input = document.createElement('input');
-        input.type = 'file'; input.accept = 'image/*';
-        input.onchange = async (e) => {
-            const file = e.target.files[0]; if (!file) return;
-            const dataUrl = await InstaVibe.Utils.fileToDataUrl(file);
-            this._openEditor(dataUrl);
-        };
-        input.click();
+        let html = `
+        <div class="modal-header">
+            <button onclick="InstaVibe.Utils.closeModal()">${InstaVibe.Utils.icons.close}</button>
+            <h3>Nouvelle Story</h3>
+            <div></div>
+        </div>
+        <div style="padding: 24px; display: flex; gap: 16px; justify-content: center;">
+            <button class="btn btn-primary" style="flex:1; display:flex; flex-direction:column; align-items:center; gap:8px; padding:20px;" onclick="document.getElementById('story-file-input').click();">
+                <span style="font-size:24px;">📸</span> Photo
+            </button>
+            <button class="btn btn-secondary" style="flex:1; display:flex; flex-direction:column; align-items:center; gap:8px; padding:20px; background:var(--gradient-pulse); border:none; color:white;" onclick="InstaVibe.Utils.closeModal(); InstaVibe.Stories._openEditor(null);">
+                <span style="font-size:24px;">Aa</span> Texte
+            </button>
+            <input type="file" id="story-file-input" accept="image/*" style="display:none">
+        </div>`;
+        InstaVibe.Utils.showModal(html);
+        
+        setTimeout(() => {
+            document.getElementById('story-file-input')?.addEventListener('change', async (e) => {
+                const file = e.target.files[0]; if (!file) return;
+                InstaVibe.Utils.closeModal(); // Fermer le modal ici
+                const dataUrl = await InstaVibe.Utils.fileToDataUrl(file);
+                this._openEditor(dataUrl);
+            });
+        }, 100);
     },
 
     _openEditor(imageUrl) {
@@ -70,13 +87,15 @@ InstaVibe.Stories = {
                     <button id="story-filter-btn" style="background:rgba(255,255,255,0.2);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.2);color:white;padding:8px 14px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;">🎨 Filtre</button>
                 </div>
             </div>
-            <div style="flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;" id="story-canvas-wrap">
-                <img src="${imageUrl}" id="story-editor-img" style="width:100%;height:100%;object-fit:cover;" class="">
-                <div id="story-text-overlay" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:white;font-size:24px;font-weight:700;text-shadow:0 2px 10px rgba(0,0,0,0.7);text-align:center;pointer-events:none;max-width:80%;word-wrap:break-word;"></div>
+            <div style="flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;${!imageUrl ? 'background:var(--gradient-pulse);' : ''}" id="story-canvas-wrap">
+                ${imageUrl ? `<img src="${imageUrl}" id="story-editor-img" style="width:100%;height:100%;object-fit:cover;" class="">` : ''}
+                <div id="story-text-overlay" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:white;font-size:32px;font-weight:700;text-shadow:0 2px 10px rgba(0,0,0,0.7);text-align:center;pointer-events:none;max-width:80%;word-wrap:break-word;"></div>
             </div>
+            ${imageUrl ? `
             <div id="story-filter-bar" style="display:none;padding:12px;overflow-x:auto;background:rgba(0,0,0,0.8);">
                 <div style="display:flex;gap:8px;" id="story-filter-options"></div>
             </div>
+            ` : ''}
             <div style="padding:12px 16px;display:flex;gap:10px;align-items:center;background:rgba(0,0,0,0.8);">
                 <input type="text" id="story-text-input" placeholder="Ajouter un texte à votre story..." style="flex:1;padding:10px 16px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:20px;color:white;font-size:14px;outline:none;">
                 <button id="story-publish-btn" style="background:var(--gradient-pulse);color:white;padding:10px 20px;border-radius:20px;font-weight:700;font-size:14px;cursor:pointer;border:none;white-space:nowrap;">Publier ⚡</button>
@@ -137,13 +156,18 @@ InstaVibe.Stories = {
         });
 
         // Store filter selection reference for publish
-        this._applyFilter = (filterName) => {
-            selectedFilter = filterName === 'none' ? '' : `filter-${filterName}`;
-            document.getElementById('story-editor-img').className = selectedFilter;
-            // Update border highlights
-            document.querySelectorAll('#story-filter-options > div > div').forEach(d => d.style.borderColor = 'transparent');
-            event.currentTarget.querySelector('div').style.borderColor = 'var(--accent-cyan)';
-        };
+        if (imageUrl) {
+            this._applyFilter = (filterName) => {
+                selectedFilter = filterName === 'none' ? '' : `filter-${filterName}`;
+                document.getElementById('story-editor-img').className = selectedFilter;
+                // Update border highlights
+                document.querySelectorAll('#story-filter-options > div > div').forEach(d => d.style.borderColor = 'transparent');
+                event.currentTarget.querySelector('div').style.borderColor = 'var(--accent-cyan)';
+            };
+        } else {
+            // Live apply default gradient if no image
+            document.getElementById('story-filter-btn').style.display = 'none';
+        }
     },
 
 
@@ -176,8 +200,10 @@ InstaVibe.Stories = {
                 <span class="time">${InstaVibe.Utils.timeAgo(story.createdAt)}</span>
                 <button class="close-btn" onclick="InstaVibe.Stories.closeViewer()">${InstaVibe.Utils.icons.close}</button>
             </div>
-            <div class="story-image"><img src="${story.imageUrl}" alt="Story"></div>
-            ${story.text ? `<div style="position:absolute;bottom:80px;left:0;right:0;text-align:center;color:white;font-size:18px;font-weight:600;text-shadow:0 2px 8px rgba(0,0,0,0.7);padding:0 20px;">${InstaVibe.Utils.escapeHtml(story.text)}</div>` : ''}
+            <div class="story-image" style="${!story.imageUrl ? 'background:var(--gradient-pulse);display:flex;align-items:center;justify-content:center;' : ''}">
+                ${story.imageUrl ? `<img src="${story.imageUrl}" alt="Story" class="${story.filter||''}">` : ''}
+                ${story.text ? `<div style="${!story.imageUrl ? 'font-size:36px;' : 'position:absolute;bottom:80px;left:0;right:0;font-size:18px;'}text-align:center;color:white;font-weight:700;text-shadow:0 2px 10px rgba(0,0,0,0.7);padding:0 20px;word-wrap:break-word;max-width:100%;">${InstaVibe.Utils.escapeHtml(story.text)}</div>` : ''}
+            </div>
             <div class="story-reactions">
                 <div class="story-reaction-emojis">
                     <button class="story-reaction-btn" onclick="InstaVibe.Stories.sendReaction('${story.userId}','❤️',this)">❤️</button>
