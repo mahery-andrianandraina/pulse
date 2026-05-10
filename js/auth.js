@@ -208,10 +208,26 @@ InstaVibe.Auth = {
         this.renderLoginPage();
     },
 
-    checkSession() {
+    async checkSession() {
         const saved = localStorage.getItem('instavibe_user');
         if (saved) { 
-            this.currentUser = JSON.parse(saved); 
+            const localUser = JSON.parse(saved);
+            this.currentUser = localUser;
+
+            // Mettre à jour depuis Firestore en arrière-plan
+            if (!InstaVibe.DEMO_MODE) {
+                try {
+                    const doc = await InstaVibe.db.collection('users').doc(localUser.id).get();
+                    if (doc.exists) {
+                        const freshData = { id: doc.id, ...doc.data() };
+                        this.currentUser = freshData;
+                        InstaVibe.DemoStore.update('users', freshData.id, freshData, true);
+                        localStorage.setItem('instavibe_user', JSON.stringify(freshData));
+                        console.log("✅ Profil utilisateur synchronisé avec Firestore");
+                    }
+                } catch(e) { console.warn("Erreur refresh session:", e); }
+            }
+            
             // Ensure the user exists in DemoStore
             if (!InstaVibe.DemoStore.findOne('users', u => u.id === this.currentUser.id)) {
                 InstaVibe.DemoStore.add('users', this.currentUser);

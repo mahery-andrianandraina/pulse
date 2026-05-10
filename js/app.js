@@ -141,9 +141,11 @@ InstaVibe.App = {
 };
 
 /* Boot */
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     InstaVibe.DemoStore.init();
-    if (InstaVibe.Auth.checkSession()) {
+    const isLoggedIn = await InstaVibe.Auth.checkSession();
+    
+    if (isLoggedIn) {
         document.getElementById('main-app').classList.remove('hidden');
         InstaVibe.App.init();
     } else {

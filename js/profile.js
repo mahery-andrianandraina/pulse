@@ -8,10 +8,27 @@ InstaVibe.Profile = {
 
         const isOwn = !userId || userId === InstaVibe.Utils.getCurrentUser()?.id;
         const targetId = isOwn ? InstaVibe.Utils.getCurrentUser()?.id : userId;
-        const user = InstaVibe.DemoStore.findOne('users', u => u.id === targetId);
+        let user = InstaVibe.DemoStore.findOne('users', u => u.id === targetId);
         
-        // Simuler le délai de chargement
-        await new Promise(r => setTimeout(r, 600));
+        // Rafraîchir les données depuis Firestore pour avoir les vrais compteurs et le statut Premium
+        if (!InstaVibe.DEMO_MODE && targetId) {
+            try {
+                const doc = await InstaVibe.db.collection('users').doc(targetId).get();
+                if (doc.exists) {
+                    const freshData = { id: doc.id, ...doc.data() };
+                    user = freshData;
+                    InstaVibe.DemoStore.update('users', targetId, freshData, true);
+                    // Si c'est notre propre profil, on met aussi à jour la session
+                    if (isOwn) {
+                        InstaVibe.Auth.currentUser = freshData;
+                        localStorage.setItem('instavibe_user', JSON.stringify(freshData));
+                    }
+                }
+            } catch(e) { console.warn("Erreur refresh profil:", e); }
+        }
+        
+        // Simuler le délai de chargement (un peu plus court car on a déjà attendu Firestore)
+        await new Promise(r => setTimeout(r, 300));
 
         if (!user) { content.innerHTML = '<div class="empty-state"><h3>Introuvable</h3></div>'; return; }
 
