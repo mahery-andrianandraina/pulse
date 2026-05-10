@@ -20,6 +20,28 @@ InstaVibe.Groups = {
         await new Promise(r => setTimeout(r, 400));
 
         const user = InstaVibe.Utils.getCurrentUser();
+        
+        // Fetch groups and memberships from Firestore
+        if (!InstaVibe.DEMO_MODE) {
+            try {
+                const memSnap = await InstaVibe.db.collection('groupMembers').where('userId', '==', user.id).get();
+                memSnap.docs.forEach(doc => {
+                    if (!InstaVibe.DemoStore.findOne('groupMembers', m => m.id === doc.id)) {
+                        InstaVibe.DemoStore.add('groupMembers', { id: doc.id, ...doc.data() }, true);
+                    }
+                });
+
+                const groupSnap = await InstaVibe.db.collection('groups').get();
+                groupSnap.docs.forEach(doc => {
+                    if (!InstaVibe.DemoStore.findOne('groups', g => g.id === doc.id)) {
+                        InstaVibe.DemoStore.add('groups', { id: doc.id, ...doc.data() }, true);
+                    }
+                });
+            } catch (e) {
+                console.error("Erreur récupération Firestore pour les groupes:", e);
+            }
+        }
+
         // Fetch groups where user is a member
         const memberships = InstaVibe.DemoStore.find('groupMembers', m => m.userId === user.id);
         const myGroups = InstaVibe.DemoStore.find('groups', g => memberships.some(m => m.groupId === g.id));
@@ -60,13 +82,36 @@ InstaVibe.Groups = {
         const content = document.getElementById('page-content');
         InstaVibe.Utils.renderLoading(content);
 
-        const group = InstaVibe.DemoStore.findOne('groups', g => g.id === groupId);
+        let group = InstaVibe.DemoStore.findOne('groups', g => g.id === groupId);
+        
+        if (!group && !InstaVibe.DEMO_MODE) {
+            try {
+                const doc = await InstaVibe.db.collection('groups').doc(groupId).get();
+                if (doc.exists) {
+                    group = { id: doc.id, ...doc.data() };
+                    InstaVibe.DemoStore.add('groups', group, true);
+                }
+            } catch (e) { console.error(e); }
+        }
+
         if (!group) {
             content.innerHTML = '<div class="empty-state"><h3>Groupe introuvable</h3></div>';
             return;
         }
 
         const user = InstaVibe.Utils.getCurrentUser();
+        
+        if (!InstaVibe.DEMO_MODE) {
+            try {
+                const memSnap = await InstaVibe.db.collection('groupMembers').where('groupId', '==', groupId).get();
+                memSnap.docs.forEach(doc => {
+                    if (!InstaVibe.DemoStore.findOne('groupMembers', m => m.id === doc.id)) {
+                        InstaVibe.DemoStore.add('groupMembers', { id: doc.id, ...doc.data() }, true);
+                    }
+                });
+            } catch(e) {}
+        }
+
         const isMember = InstaVibe.DemoStore.findOne('groupMembers', m => m.groupId === groupId && m.userId === user.id);
         const membersCount = InstaVibe.DemoStore.find('groupMembers', m => m.groupId === groupId).length;
 
