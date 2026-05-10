@@ -51,9 +51,9 @@ InstaVibe.Admin = {
                         <div class="stat-value">${posts.length}</div>
                         <div class="stat-label">Publications</div>
                     </div>
-                    <div class="admin-stat-card">
-                        <div class="stat-value">${interactions}</div>
-                        <div class="stat-label">Interactions</div>
+                    <div class="admin-stat-card" style="border: 1px solid gold;">
+                        <div class="stat-value" style="color: gold;">${users.filter(u => u.isPremium).length * 4.99}€</div>
+                        <div class="stat-label">Revenus Estimés</div>
                     </div>
                 </div>
 
@@ -99,16 +99,19 @@ InstaVibe.Admin = {
                         <div class="admin-user-metrics">
                             <span>📝 ${user.postsCount || 0} posts</span>
                             <span>👥 ${user.followersCount || 0} abonnés</span>
+                            <span style="color: ${user.isPremium ? 'gold' : 'var(--text-secondary)'}; font-weight: bold;">
+                                👑 ${user.isPremium ? 'Membre Premium' : 'Membre Gratuit'}
+                            </span>
                         </div>
                     </div>
                 </div>
                 <div class="admin-user-actions">
+                    <button class="btn btn-sm" style="background: ${user.isPremium ? 'var(--bg-secondary)' : 'gold'}; color: ${user.isPremium ? 'var(--text-primary)' : '#000'}" onclick="InstaVibe.Admin.togglePremium('${user.id}')">
+                        ${user.isPremium ? 'Retirer Premium' : 'Offrir Premium'}
+                    </button>
                     ${!isAdmin ? `
                         <button class="btn btn-warning btn-sm" onclick="InstaVibe.Admin.toggleBan('${user.id}')">
                             ${isBanned ? 'Débannir' : 'Bannir'}
-                        </button>
-                        <button class="btn btn-danger btn-sm" onclick="InstaVibe.Admin.deleteUser('${user.id}')">
-                            Supprimer
                         </button>
                     ` : ''}
                 </div>
@@ -122,8 +125,30 @@ InstaVibe.Admin = {
 
         const isBanned = !user.banned;
         InstaVibe.DemoStore.update('users', userId, { banned: isBanned });
+        
+        if (!InstaVibe.DEMO_MODE) {
+            InstaVibe.db.collection('users').doc(userId).update({ banned: isBanned }).catch(console.error);
+        }
+
         InstaVibe.Utils.showToast(isBanned ? 'Utilisateur suspendu' : 'Utilisateur rétabli', isBanned ? 'error' : 'success');
         this.render(); // Re-render the dashboard
+    },
+
+    async togglePremium(userId) {
+        const user = InstaVibe.DemoStore.findOne('users', u => u.id === userId);
+        if (!user) return;
+
+        const isPremium = !user.isPremium;
+        InstaVibe.DemoStore.update('users', userId, { isPremium: isPremium });
+        
+        if (!InstaVibe.DEMO_MODE) {
+            try {
+                await InstaVibe.db.collection('users').doc(userId).update({ isPremium: isPremium });
+            } catch(e) { console.error(e); }
+        }
+
+        InstaVibe.Utils.showToast(isPremium ? 'Premium activé ⭐' : 'Premium désactivé', 'success');
+        this.render();
     },
 
     deleteUser(userId) {
