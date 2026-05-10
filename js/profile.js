@@ -94,9 +94,18 @@ InstaVibe.Profile = {
             if (target) InstaVibe.DemoStore.update('users', targetId, { followersCount: Math.max(0, target.followersCount - 1) });
             InstaVibe.DemoStore.update('users', cur.id, { followingCount: Math.max(0, cur.followingCount - 1) });
             if (btn) { btn.className = 'btn btn-primary btn-sm'; btn.textContent = 'Suivre'; }
-            // Supprimer le follow de Firestore
+            // Mettre à jour Firestore
             if (!InstaVibe.DEMO_MODE) {
                 InstaVibe.db.collection('follows').doc(existing.id).delete().catch(e => console.error(e));
+                // Décrémenter les compteurs dans Firestore
+                if (target) {
+                    InstaVibe.db.collection('users').doc(targetId).update({ 
+                        followersCount: Math.max(0, (target.followersCount || 0) - 1) 
+                    }).catch(e => console.error(e));
+                }
+                InstaVibe.db.collection('users').doc(cur.id).update({ 
+                    followingCount: Math.max(0, (cur.followingCount || 0) - 1) 
+                }).catch(e => console.error(e));
             }
         } else {
             const followId = InstaVibe.Utils.generateId('f_');
@@ -114,6 +123,16 @@ InstaVibe.Profile = {
             // Envoyer le follow et la notification à Firestore
             if (!InstaVibe.DEMO_MODE) {
                 InstaVibe.db.collection('follows').doc(followId).set(followData).catch(e => console.error(e));
+                // Incrémenter les compteurs dans Firestore
+                if (target) {
+                    InstaVibe.db.collection('users').doc(targetId).update({ 
+                        followersCount: (target.followersCount || 0) + 1 
+                    }).catch(e => console.error(e));
+                }
+                InstaVibe.db.collection('users').doc(cur.id).update({ 
+                    followingCount: (cur.followingCount || 0) + 1 
+                }).catch(e => console.error(e));
+                
                 InstaVibe.Notifications.send(targetId, 'follow');
             }
         }
