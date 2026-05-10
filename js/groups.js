@@ -144,7 +144,7 @@ InstaVibe.Groups = {
         } else {
             // Group actions and feed
             html += `
-            <div class="group-create-post" style="padding: 16px; border-bottom: 1px solid var(--border-glass); display: flex; gap: 12px; align-items: center; cursor: pointer;" onclick="InstaVibe.Post.renderCreatePage('${groupId}')">
+            <div class="group-create-post" style="padding: 16px; border-bottom: 1px solid var(--border-glass); display: flex; gap: 12px; align-items: center; cursor: pointer;" onclick="InstaVibe.App.navigate('create/${groupId}')">
                 <div class="avatar avatar-sm">
                     <img src="${user.avatarUrl}" alt="">
                 </div>

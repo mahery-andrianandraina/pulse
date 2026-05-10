@@ -28,7 +28,13 @@ InstaVibe.App = {
         this._notifInterval = setInterval(() => this._checkNotifications(), 30000);
     },
 
-    navigate(page) { window.location.hash = page; },
+    navigate(page) { 
+        if (window.location.hash === '#' + page) {
+            this._handleRoute();
+        } else {
+            window.location.hash = page; 
+        }
+    },
 
     async _handleRoute() {
         InstaVibe.Utils.showPageLoading();
@@ -52,7 +58,7 @@ InstaVibe.App = {
                 case 'groups': await InstaVibe.Groups.renderHub(); break;
                 case 'group': if (param) await InstaVibe.Groups.renderDetail(param); break;
                 case 'create':
-                    InstaVibe.Post.renderCreatePage();
+                    InstaVibe.Post.renderCreatePage(param);
                     document.getElementById('stories-bar-container').classList.add('hidden');
                     break;
                 case 'reels': await InstaVibe.Reels.render(); break;
